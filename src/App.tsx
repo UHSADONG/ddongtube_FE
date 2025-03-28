@@ -13,7 +13,7 @@ function App() {
         }}
       >
         Break the world
-      </button>;
+      </button>
     </div>
   )
 }
