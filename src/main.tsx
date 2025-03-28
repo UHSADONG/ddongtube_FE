@@ -1,10 +1,18 @@
+import './sentry/instruments.ts'
+import { SENTRY_CONFIG } from './sentry/config.ts';
+
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+
 import './index.css'
 import App from './App.tsx'
 
-createRoot(document.getElementById('root')!).render(
+const container = document.getElementById('root')!;
+
+const root = createRoot(container, SENTRY_CONFIG);
+
+root.render(
   <StrictMode>
     <App />
-  </StrictMode>,
-)
+  </StrictMode>
+);
