@@ -7,6 +7,7 @@ function App() {
       <h1 className='text-5xl font-bold'>Deeeply</h1>
       <button
         type="button"
+        className='mt-4 bg-blue-500 text-white px-4 py-2 rounded'
         onClick={() => {
           throw new Error("Sentry Test Error");
         }}
