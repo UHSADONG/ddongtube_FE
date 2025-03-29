@@ -30,6 +30,9 @@
 }
 
 @theme {
+  
+    --color-background : #1F1F20;
+    --color-main-focus : #B6350D;
     --color-main : #D93F0F;
     --color-button : #585858;
     --color-font-enabled : #D9D9D9;
