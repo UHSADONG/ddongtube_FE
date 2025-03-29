@@ -2,7 +2,7 @@ import React from 'react'
 
 type Props = {}
 
-const home = (props: Props) => {
+const Test = (props: Props) => {
     return (
         <div className='w-full h-full flex flex-col items-center justify-center'>
             <h1 className='text-5xl font-bold'>Deeeply</h1>
@@ -19,4 +19,4 @@ const home = (props: Props) => {
     )
 }
 
-export default home
+export default Test
