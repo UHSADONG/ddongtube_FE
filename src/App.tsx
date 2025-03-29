@@ -1,20 +1,42 @@
-import './App.css'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Navigate, Route, useLocation } from 'react-router';
+import { Suspense } from 'react';
+
+import { queryClientConfig } from './config/queryClient'
+import { SentryRoutes } from './sentry/routes';
+
+import Start from './pages/start';
+import Create from './pages/create';
+import Home from './pages/home';
+import Playlist from './pages/playlist';
+import Error from './pages/error';
+import Offline from './pages/offline';
+import NotFound from './pages/notFound';
+import Test from './pages/test';
+
+const queryClient = new QueryClient(queryClientConfig);
 
 function App() {
 
+  const location = useLocation();
+
   return (
-    <div className='w-full h-full flex flex-col items-center justify-center'>
-      <h1 className='text-5xl font-bold'>Deeeply</h1>
-      <button
-        type="button"
-        className='mt-4 bg-blue-500 text-white px-4 py-2 rounded'
-        onClick={() => {
-          throw new Error("Sentry Test Error");
-        }}
-      >
-        Break the world
-      </button>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <Suspense key={location.pathname} fallback={<div>Loading...</div>}>
+        <SentryRoutes>
+          <Route path="/" element={<Navigate to="/start" replace />} />
+          <Route path="/start" element={<Start />} />
+          <Route path="/start/:playlistCode" element={<Start />} />
+          <Route path="/create" element={<Create />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/playlist" element={<Playlist />} />
+          <Route path="/error" element={<Error />} />
+          <Route path="/offline" element={<Offline />} />
+          <Route path="/test" element={<Test />} />
+          <Route path="*" element={<NotFound />} />
+        </SentryRoutes>
+      </Suspense>
+    </QueryClientProvider>
   )
 }
 
