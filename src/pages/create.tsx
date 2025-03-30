@@ -66,6 +66,7 @@ const Create = () => {
         const convertedPlaylistForm = {
             ...playlistForm,
             playlistTitle: form.title,
+            playlistDescription: form.description,
             userName: playlistForm.userName || "",
             userPassword: playlistForm.userPassword || "",
         }
