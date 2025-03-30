@@ -1,1 +1,60 @@
 @import "tailwindcss";
+
+@font-face {
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 500;
+  src: local('Pretendard Medium'), 
+        url('/fonts/Pretendard-Medium.woff2') format('woff2'),
+        url('/fonts/Pretendard-Medium.woff') format('woff');
+}
+@font-face {
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 600;
+  src: local('Pretendard SemiBold'), 
+    url('/fonts/Pretendard-SemiBold.woff2') format('woff2'),
+    url('/fonts/Pretendard-SemiBold.woff') format('woff');
+}
+@font-face {
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Pretendard Bold'), 
+        url('/fonts/Pretendard-Bold.woff2') format('woff2'),
+        url('/fonts/Pretendard-Bold.woff') format('woff');
+}
+
+* {
+    font-family: 'Pretendard', sans-serif;
+}
+
+@theme {
+  
+    --color-background : #1F1F20;
+    --color-main-focus : #B6350D;
+    --color-main : #D93F0F;
+    --color-button : #585858;
+    --color-font-enabled : #D9D9D9;
+    --color-font-disabled : #979797;
+    --color-stroke : #5F5F5F;
+    --color-stroke-2 : #3E3E3E;
+    --color-fill : #2D2D31;
+    --color-fill-2 : #232323;
+
+    --text-head-medium-bold: 20px;
+    --text-head-medium-bold-weight: 700;
+    --text-head-small-bold: 18px;
+    --text-head-small-bold-weight: 700;
+    --text-text-large-bold: 16px;
+    --text-text-large-bold-weight: 700;
+    --text-text-medium-md: 14px;
+    --text-text-medium-md-weight: 500;
+    --text-text-medium-md--line-height: 140%;
+    --text-text-medium-sm: 14px;
+    --text-text-medium-sm-weight: 600;
+    --text-caption-sm: 12px;
+    --text-caption-sm-weight: 600;
+    --text-caption-md: 12px;
+    --text-caption-md-weight: 500;
+}
