@@ -14,6 +14,7 @@ import Offline from './pages/offline';
 import NotFound from './pages/notFound';
 import Test from './pages/test';
 import Loading from './pages/loading';
+import { ErrorBoundary } from './error/errorBoundary';
 
 const queryClient = new QueryClient(queryClientConfig);
 
@@ -23,21 +24,23 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Suspense key={location.pathname} fallback={<Loading isLoading={true} />}>
-        <SentryRoutes>
-          <Route path="/" element={<Navigate to="/start" replace />} />
-          <Route path="/start" element={<Start />} />
-          <Route path="/start/:playlistCode" element={<Start />} />
-          <Route path="/create" element={<Create />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/playlist" element={<Playlist />} />
-          <Route path="/error" element={<Error />} />
-          <Route path="/offline" element={<Offline />} />
-          <Route path="/test" element={<Test />} />
-          <Route path="*" element={<NotFound />} />
-        </SentryRoutes>
-      </Suspense>
-    </QueryClientProvider>
+      <ErrorBoundary key={location.pathname}>
+        <Suspense fallback={<Loading isLoading={true} />}>
+          <SentryRoutes>
+            <Route path="/" element={<Navigate to="/start" replace />} />
+            <Route path="/start" element={<Start />} />
+            <Route path="/start/:playlistCode" element={<Start />} />
+            <Route path="/create" element={<Create />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/playlist" element={<Playlist />} />
+            <Route path="/error" element={<Error />} />
+            <Route path="/offline" element={<Offline />} />
+            <Route path="/test" element={<Test />} />
+            <Route path="*" element={<NotFound />} />
+          </SentryRoutes>
+        </Suspense>
+      </ErrorBoundary>
+    </QueryClientProvider >
   )
 }
 

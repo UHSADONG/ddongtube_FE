@@ -10,7 +10,7 @@ async function handleResponse<T>(response: Response): Promise<T | boolean> {
     const contentType = response.headers.get("content-type");
 
     if (contentType?.includes("application/json")) {
-    return response.json() as Promise<T>;
+      return response.json() as Promise<T>;
     }
 
     return true;
