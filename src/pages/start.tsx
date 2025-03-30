@@ -3,7 +3,16 @@ import Input from "../components/common/input"
 import StartImage from "../assets/start/img_start.webp"
 import { useStartForm } from "../hooks/form/useStartForm";
 
+let timeoutPromise: Promise<void> | null = null;
+
 const Start = () => {
+
+    if (!timeoutPromise) {
+        timeoutPromise = new Promise((resolve) => {
+            setTimeout(resolve, 3000);
+        });
+        throw timeoutPromise;
+    }
 
     const { form, errors, onChange, onSubmit } = useStartForm();
 

@@ -9,7 +9,16 @@ import { useNavigate } from "react-router";
 import SuccessIcon from "../assets/create/ic_success.webp";
 import useModal from "../hooks/modal/useSuccessModal";
 
+let timeoutPromise: Promise<void> | null = null;
+
 const Create = () => {
+
+    if (!timeoutPromise) {
+        timeoutPromise = new Promise((resolve) => {
+            setTimeout(resolve, 3000);
+        });
+        throw timeoutPromise;
+    }
 
     const navigate = useNavigate();
 

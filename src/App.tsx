@@ -13,6 +13,7 @@ import Error from './pages/error';
 import Offline from './pages/offline';
 import NotFound from './pages/notFound';
 import Test from './pages/test';
+import Loading from './pages/loading';
 
 const queryClient = new QueryClient(queryClientConfig);
 
@@ -22,7 +23,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Suspense key={location.pathname} fallback={<div>Loading...</div>}>
+      <Suspense key={location.pathname} fallback={<Loading isLoading={true} />}>
         <SentryRoutes>
           <Route path="/" element={<Navigate to="/start" replace />} />
           <Route path="/start" element={<Start />} />

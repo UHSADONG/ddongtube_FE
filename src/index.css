@@ -58,3 +58,15 @@
     --text-caption-md: 12px;
     --text-caption-md-weight: 500;
 }
+
+@keyframes spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+.spinner {
+	animation: spin 1s linear infinite;
+}
