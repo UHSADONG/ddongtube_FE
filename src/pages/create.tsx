@@ -66,16 +66,12 @@ const Create = () => {
         const convertedPlaylistForm = {
             ...playlistForm,
             playlistTitle: form.title,
+            playlistDescription: form.description,
             userName: playlistForm.userName || "",
             userPassword: playlistForm.userPassword || "",
         }
-        try {
-            const result = await handleSubmitPlaylist(thumbnail, convertedPlaylistForm);
-            if (result) openModal();
-        }
-        catch (error) {
-            console.error("Error submitting playlist:", error);
-        }
+        const result = await handleSubmitPlaylist(thumbnail, convertedPlaylistForm);
+        if (result) openModal();
 
     }
 

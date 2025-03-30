@@ -37,7 +37,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </SentryRoutes>
       </Suspense>
-    </QueryClientProvider>
+    </QueryClientProvider >
   )
 }
 
