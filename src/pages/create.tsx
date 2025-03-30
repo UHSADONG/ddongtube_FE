@@ -1,7 +1,7 @@
 import Button from "../components/common/button";
 import Input from "../components/common/input";
-import useThumbnailUpload from "../hooks/useThumbnailUpload";
-import { useCreateForm } from "../hooks/useCreateForm";
+import useThumbnailUpload from "../hooks/thumbnail/useThumbnailUpload";
+import { useCreateForm } from "../hooks/form/useCreateForm";
 
 const Create = () => {
     const {

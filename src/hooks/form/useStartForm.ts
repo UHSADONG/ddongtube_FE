@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import usePlaylistFormStore from "./usePlaylistForm";
+import usePlaylistFormStore from "../store/usePlaylistForm";
 import { useNavigate } from "react-router";
 
 type FormState = {

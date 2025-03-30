@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { PlaylistForm } from '../types/playlist';
+import { PlaylistForm } from '../../types/playlist';
 
 interface PlaylistFormStore {
     playlistForm: Partial<PlaylistForm>;

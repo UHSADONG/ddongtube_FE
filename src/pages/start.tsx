@@ -1,7 +1,7 @@
 import Button from "../components/common/button"
 import Input from "../components/common/input"
 import StartImage from "../assets/start/img_start.webp"
-import { useStartForm } from "../hooks/useStartForm";
+import { useStartForm } from "../hooks/form/useStartForm";
 
 const Start = () => {
 
