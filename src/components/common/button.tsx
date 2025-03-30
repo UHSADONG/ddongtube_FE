@@ -13,7 +13,7 @@ const Button = ({ text, onClick, disabled = false }: ButtonProps) => {
                 className={`
                     w-full text-text-large-bold text-white rounded-xl py-5
                     ${disabled ? 'bg-button' : 'bg-main hover:bg-main-focus'}
-                    transition duration-200 ease-in-out
+                    transition duration-200 ease-in-out font-bold
                 `}
             >
                 {text}
