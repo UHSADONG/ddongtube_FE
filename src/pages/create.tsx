@@ -6,7 +6,7 @@ import { useSubmitPlaylistForm } from '../hooks/form/useSubmitPlaylistForm';
 import usePlaylistFormStore from "../hooks/store/usePlaylistForm";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import SuccessImage from "../assets/create/ic_success.webp";
+import SuccessIcon from "../assets/create/ic_success.webp";
 import useModal from "../hooks/modal/useSuccessModal";
 
 const Create = () => {
@@ -37,7 +37,7 @@ const Create = () => {
         navigate("/home");
     }
 
-    const [Modal, isOpen, openModal, closeModal] = useModal(onCloseModal);
+    const [Modal, _, openModal] = useModal(onCloseModal);
 
     const isValid = form.title.trim().length > 0 && form.description.trim().length > 0 && thumbnail;
 
@@ -60,9 +60,14 @@ const Create = () => {
             userName: playlistForm.userName || "",
             userPassword: playlistForm.userPassword || "",
         }
+        try {
+            const result = await handleSubmitPlaylist(thumbnail, convertedPlaylistForm);
+            if (result) openModal();
+        }
+        catch (error) {
+            console.error("Error submitting playlist:", error);
+        }
 
-        const result = await handleSubmitPlaylist(thumbnail, convertedPlaylistForm);
-        if (result) openModal();
     }
 
     const handleButtonText = () => {
@@ -144,7 +149,7 @@ const Create = () => {
             <Modal>
                 <section className="flex flex-col items-center justify-start h-full">
                     <article className="flex flex-col items-center h-full justify-between">
-                        <img src={SuccessImage}></img>
+                        <img src={SuccessIcon} alt="성공 아이콘"></img>
                         <h1 className="text-head-medium-bold text-white whitespace-pre-line text-center">{"플레이리스트가\n성공적으로 만들어졌어요!"}</h1>
                         <p className="text-text-medium-md text-font-disabled whitespace-pre-line text-center">{"24시간 동안 단 한 명도\n플레이리스트를 재생하지 않으면,\n플레이리스트는 사라져요"}</p>
                     </article>
