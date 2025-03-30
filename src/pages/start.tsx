@@ -1,10 +1,12 @@
 import Button from "../components/common/button"
 import Input from "../components/common/input"
 import StartImage from "../assets/start/img_start.webp"
+import { useStartForm } from "../hooks/useStartForm";
 
-type Props = {}
+const Start = () => {
 
-const Start = (props: Props) => {
+    const { form, errors, onChange, onSubmit } = useStartForm();
+
     return (
         <div className="h-dvh min-w-screen bg-background">
             <div className="flex flex-col max-w-2xl h-dvh mx-auto items-center justify-start bg-background px-6">
@@ -12,23 +14,23 @@ const Start = (props: Props) => {
                 <Input
                     label="닉네임"
                     type="text"
-                    placeholder="닉네임을 입력해주세요"
-                    value=""
-                    onChange={(e) => { }}
-                    className="mb-8 mt-20"
+                    placeholder="닉네임을 입력하세요"
+                    value={form.nickname}
+                    onChange={onChange("nickname")}
+                    isError={!!errors.nickname}
+                    errorMessage={errors.nickname}
+                    className="mt-18 mb-8"
                 />
                 <Input
                     label="비밀번호(선택)"
                     type="password"
-                    placeholder="비밀번호를 입력해주세요"
-                    value=""
-                    onChange={(e) => { }}
+                    placeholder="비밀번호를 입력하세요"
+                    value={form.password}
+                    onChange={onChange("password")}
+                    isError={!!errors.password}
+                    errorMessage={errors.password}
                 />
-
-                <Button
-                    text="시작하기"
-                    onClick={() => { }}
-                    disabled={false} />
+                <Button text="시작하기" onClick={onSubmit} disabled={form.nickname === ""} />
             </div>
         </div>
     )

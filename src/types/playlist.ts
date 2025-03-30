@@ -1,5 +1,12 @@
 import { Video } from "./video";
 
+export type PlaylistForm = {
+    userName: string;
+    playlistTitle: string;
+    thumbnailUrl: string;
+    userPassword?: string;
+}
+
 export type PlaylistMeta = {
     title : string;
     thumbnailUrl : string;
@@ -9,5 +16,5 @@ export type PlaylistMeta = {
 }
 
 export interface PlayList extends PlaylistMeta {
-    videoList : Video[];
+    videoList? : Video[];
 }
