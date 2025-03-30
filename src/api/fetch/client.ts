@@ -37,7 +37,7 @@ export async function getFetch<T>(
   return request<T>(`${url}${queryString}`, { method: "GET" });
 }
 
-export async function postFetch<T, K>(
+export async function postFetch<T,K>(
   url: string,
   body?: Record<string, K | K[]>,
 ): Promise<T | boolean> {
@@ -45,6 +45,16 @@ export async function postFetch<T, K>(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
+  });
+}
+
+export async function postFormFetch<T>(
+  url: string,
+  formData: FormData
+): Promise<T | boolean> {
+  return request<T | boolean>(url, {
+    method: "POST",
+    body: formData,
   });
 }
 

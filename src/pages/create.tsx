@@ -2,8 +2,15 @@ import Button from "../components/common/button";
 import Input from "../components/common/input";
 import useThumbnailUpload from "../hooks/thumbnail/useThumbnailUpload";
 import { useCreateForm } from "../hooks/form/useCreateForm";
+import { useSubmitPlaylistForm } from '../hooks/form/useSubmitPlaylistForm';
+import usePlaylistFormStore from "../hooks/store/usePlaylistForm";
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
 
 const Create = () => {
+
+    const navigate = useNavigate();
+
     const {
         dragActive,
         thumbnail,
@@ -25,6 +32,31 @@ const Create = () => {
     } = useCreateForm();
 
     const isValid = form.title.trim().length > 0 && form.description.trim().length > 0 && thumbnail;
+
+    const { handleSubmitPlaylist } = useSubmitPlaylistForm();
+
+    const { playlistForm } = usePlaylistFormStore();
+
+    useEffect(() => {
+        if (!playlistForm.userName) {
+            navigate("/start")
+        }
+    }, [])
+
+    const handleSubmit = async () => {
+
+        if (!thumbnail) return;
+        const convertedPlaylistForm = {
+            ...playlistForm,
+            playlistTitle: form.title,
+            userName: playlistForm.userName || "",
+            userPassword: playlistForm.userPassword || "",
+        }
+
+        const result = await handleSubmitPlaylist(thumbnail, convertedPlaylistForm);
+
+        console.log(result);
+    }
 
     return (
         <div
@@ -94,7 +126,7 @@ const Create = () => {
                     isError={!!errors.description}
                     errorMessage={errors.description}
                 />
-                <Button text="플레이리스트 만들기" onClick={() => { }} disabled={!isValid} />
+                <Button text="플레이리스트 만들기" onClick={handleSubmit} disabled={!isValid} />
             </div>
         </div>
     );
