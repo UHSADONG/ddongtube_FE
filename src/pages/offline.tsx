@@ -1,6 +1,4 @@
-type Props = {}
-
-const Offline = (props: Props) => {
+const Offline = () => {
     return (
         <div>Offline</div>
     )
