@@ -8,7 +8,7 @@ const Start = () => {
     const { form, errors, onChange, onSubmit } = useStartForm();
 
     return (
-        <div className="h-dvh min-w-screen bg-background">
+        <div className="h-dvh min-w-screen bg-background overflow-hidden">
             <div className="flex flex-col max-w-2xl h-dvh mx-auto items-center justify-start bg-background px-6">
                 <img src={StartImage} className="mt-[120px]" />
                 <Input

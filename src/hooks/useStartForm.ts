@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { PlaylistForm } from "../types/playlist";
 import usePlaylistFormStore from "./usePlaylistForm";
+import { useNavigate } from "react-router";
 
 type FormState = {
     nickname: string;
@@ -13,6 +13,8 @@ type FormErrors = {
 };
 
 export const useStartForm = () => {
+
+    const navigate = useNavigate();
     
     const [form, setForm] = useState<FormState>({
         nickname: "",
@@ -30,7 +32,7 @@ export const useStartForm = () => {
         reset();
     },[])
 
-    const onChange = (field: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onChange = (field: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setForm((prev) => ({ ...prev, [field]: e.target.value }));
         setErrors((prev) => ({ ...prev, [field]: "" }));
     };
@@ -62,6 +64,7 @@ export const useStartForm = () => {
             userName: form.nickname,
             userPassword: form.password,
         }));
+        navigate("/create");
     };
 
     return {
