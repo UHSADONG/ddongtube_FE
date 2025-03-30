@@ -162,7 +162,7 @@ const Create = () => {
                         <h1 className="text-head-medium-bold font-bold text-white whitespace-pre-line text-center">{"플레이리스트가\n성공적으로 만들어졌어요!"}</h1>
                         <p className="text-text-medium-md text-font-disabled whitespace-pre-line text-center">{"24시간 동안 단 한 명도\n플레이리스트를 재생하지 않으면,\n플레이리스트는 사라져요"}</p>
                     </article>
-                    <p className="text-caption-md text-font-disabled">* 한 번 사라진 플레이리스트는 복구할 수 없어요</p>
+                    <p className="text-caption-md text-font-disabled mt-10">* 한 번 사라진 플레이리스트는 복구할 수 없어요</p>
                 </section>
             </Modal>
         </div>
