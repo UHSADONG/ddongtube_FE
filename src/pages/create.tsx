@@ -41,7 +41,7 @@ const Create = () => {
 
     const isValid = form.title.trim().length > 0 && form.description.trim().length > 0 && thumbnail;
 
-    const { handleSubmitPlaylist } = useSubmitPlaylistForm();
+    const { handleSubmitPlaylist, isPending, isError } = useSubmitPlaylistForm();
 
     const { playlistForm } = usePlaylistFormStore();
 
@@ -63,6 +63,12 @@ const Create = () => {
 
         const result = await handleSubmitPlaylist(thumbnail, convertedPlaylistForm);
         if (result) openModal();
+    }
+
+    const handleButtonText = () => {
+        if (isPending) return "플레이리스트 생성 중...";
+        if (isError) return "플레이리스트 생성 실패";
+        return "플레이리스트 만들기";
     }
 
     return (
@@ -133,7 +139,7 @@ const Create = () => {
                     isError={!!errors.description}
                     errorMessage={errors.description}
                 />
-                <Button text="플레이리스트 만들기" onClick={handleSubmit} disabled={!isValid} />
+                <Button text={handleButtonText()} onClick={handleSubmit} disabled={!isValid || isPending} />
             </div>
             <Modal>
                 <section className="flex flex-col items-center justify-start h-full">

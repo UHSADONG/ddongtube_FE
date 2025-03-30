@@ -8,6 +8,7 @@ export const useSubmitPlaylistForm = () => {
   const {
     mutateAsync: uploadThumbnail,
     isPending: isUploadingThumbnail,
+    isError: isThumbnailUploadError,
     error: thumbnailUploadError,
   } = useDebouncedMutation(
     {
@@ -20,6 +21,7 @@ export const useSubmitPlaylistForm = () => {
   const {
     mutateAsync: submitPlaylist,
     isPending: isSubmittingPlaylist,
+    isError: isPlaylistSubmitError,
     error: playlistSubmitError,
   } = useDebouncedMutation(
     {
@@ -44,6 +46,8 @@ export const useSubmitPlaylistForm = () => {
 
   return {
     handleSubmitPlaylist,
+    isPending: isUploadingThumbnail || isSubmittingPlaylist,
+    isError : isThumbnailUploadError || isPlaylistSubmitError,
     isUploadingThumbnail,
     isSubmittingPlaylist,
     thumbnailUploadError,
