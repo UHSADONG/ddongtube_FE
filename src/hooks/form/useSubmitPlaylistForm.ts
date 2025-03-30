@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { postPlaylist, postPlaylistThumbnail } from "../../api/playlist";
 import { PostPlaylistRequest } from "../../api/type/request/playlist";
 import { useDebouncedMutation } from "../react-query/useDebouncedMutation";
@@ -10,7 +9,6 @@ export const useSubmitPlaylistForm = () => {
     mutateAsync: uploadThumbnail,
     isPending: isUploadingThumbnail,
     error: thumbnailUploadError,
-    data: imageUrl,
   } = useDebouncedMutation(
     {
       mutationFn: (file: File) => postPlaylistThumbnail({ file }),
@@ -33,15 +31,14 @@ export const useSubmitPlaylistForm = () => {
 
   const handleSubmitPlaylist = async (file: File, data: Omit<PostPlaylistRequest, "thumbnailUrl">) => {
     const uploadedImage = await uploadThumbnail(file);
-    if (typeof uploadedImage !== 'object' || !uploadedImage.imageUrl) return false;
+    if (typeof uploadedImage !== 'object' || !uploadedImage.result) return false;
 
     const playlistData: PostPlaylistRequest = {
       ...data,
-      thumbnailUrl: uploadedImage.imageUrl
+      thumbnailUrl: uploadedImage.result
     };
 
     const result = await submitPlaylist(playlistData);
-
     return result;
   };
 
