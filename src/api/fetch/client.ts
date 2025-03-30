@@ -10,7 +10,9 @@ async function handleResponse<T>(response: Response): Promise<T | boolean> {
     if (contentType?.includes("application/json")) {
       parsedResponse = await response.json();
     }
-    const {message, code} = parsedResponse;
+
+    const message = parsedResponse?.message || response.statusText;
+    const code = parsedResponse?.code || `HTTP_${response.status}`;
     throw new ApiError(response.status, response.statusText, message, code, parsedResponse);
   }
   const contentType = response.headers.get("content-type");
@@ -45,7 +47,7 @@ async function request<T>(url: string, options: RequestInit): Promise<T> {
         scope.setTag("errorCode", "UNE000");
         scope.setExtra("requestUrl", url);
         scope.setExtra("requestOptions", options);
-        Sentry.captureException(new Error("Unknown error occurred"));
+        Sentry.captureException(error);
       }
     });
     throw error;
