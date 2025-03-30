@@ -9,17 +9,9 @@ export const postPlaylistThumbnail = (
 
     const formData = transformPlaylistThumbnail(file);
     
-    return postFormFetch<{ result: string }>("/playlist/thumbnail", formData).then(res => res ?? false).catch((err)=>
-        {
-            throw new Error("[POST] 썸네일 업로드 실패 : " + err)
-        }
-    );
+    return postFormFetch<{ result: string }>("/playlist/thumbnail", formData).then(res => res ?? false);
 }
 
 export const postPlaylist = (body: PostPlaylistRequest): Promise<PostPlaylistResponse | boolean> => {
-    return postFetch<PostPlaylistResponse, string>("/playlist", body).then(res => res ?? false).catch((err) =>
-        {
-            throw new Error("[POST] 플레이리스트 생성 실패 : " + err)
-        }
-    );
-}
+    return postFetch<PostPlaylistResponse, string>("/playlist", body).then(res => res ?? false)
+};

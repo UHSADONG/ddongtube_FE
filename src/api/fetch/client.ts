@@ -1,28 +1,55 @@
+import { ApiError } from "../../error/apiError";
+import * as Sentry from '@sentry/react';
+
 const baseURL = import.meta.env.VITE_REACT_SERVER_BASE_URL;
 
 async function handleResponse<T>(response: Response): Promise<T | boolean> {
     if (!response.ok) {
-        switch (response.status) {
-        default:
-            throw new Error(`Unexpected Error: ${response.status} ${response.statusText}`);
-        }
-    }
     const contentType = response.headers.get("content-type");
-
+    let parsedResponse = null;
     if (contentType?.includes("application/json")) {
-      return response.json() as Promise<T>;
+      parsedResponse = await response.json();
     }
-
-    return true;
+    const {message, code} = parsedResponse;
+    throw new ApiError(response.status, response.statusText, message, code, parsedResponse);
+  }
+  const contentType = response.headers.get("content-type");
+  if (contentType?.includes("application/json")) {
+    return response.json() as Promise<T>;
+  }
+  return true;
 }
 
 async function request<T>(url: string, options: RequestInit): Promise<T> {
   if (import.meta.env.DEV) {
     console.log(`${options.method} : `, url);
   }
-
-  const response = await fetch(`${baseURL}${url}`, options);
-  return handleResponse(response) as Promise<T>;
+  try {
+    const response = await fetch(`${baseURL}${url}`, options);
+    return handleResponse(response) as Promise<T>;
+  } catch (error: unknown) {
+    console.log(error);
+    Sentry.withScope((scope) => {
+      scope.setContext("fetch", {
+        url,
+        ...options,
+      });
+      if (error instanceof ApiError) {
+        scope.setTag("errorType", error.name);
+        scope.setTag("errorCode", error.code);
+        scope.setExtra("requestUrl", url);
+        scope.setExtra("requestOptions", options);
+        Sentry.captureException(error);
+      } else {
+        scope.setTag("errorType", "UnknownError");
+        scope.setTag("errorCode", "UNE000");
+        scope.setExtra("requestUrl", url);
+        scope.setExtra("requestOptions", options);
+        Sentry.captureException(new Error("Unknown error occurred"));
+      }
+    });
+    throw error;
+  }
 }
 
 export async function getFetch<T>(
