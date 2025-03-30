@@ -13,6 +13,7 @@ type InputProps = {
 };
 
 const Input = ({
+    label,
     type,
     placeholder,
     value,
@@ -27,7 +28,7 @@ const Input = ({
 
     return (
         <div className={`flex flex-col max-w-[400px] w-full ${className}`}>
-            <label className="mb-2 text-sm font-medium text-white ml-1">{placeholder}</label>
+            <label className="mb-2 text-sm font-medium text-white ml-1">{label}</label>
 
             {multiline ? (
                 <textarea

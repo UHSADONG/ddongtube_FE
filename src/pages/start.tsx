@@ -11,6 +11,7 @@ const Start = () => {
         <div className="h-dvh min-w-screen bg-background overflow-hidden">
             <div className="flex flex-col max-w-2xl h-dvh mx-auto items-center justify-start bg-background px-6">
                 <img src={StartImage} className="mt-[120px] h-[100px] w-[200px]" />
+                <p className="text-font-disabled text-text-medium-sm mt-2">안 들어오면.. 나.. 24시간 뒤에.. 터진다.?ㅋ</p>
                 <Input
                     label="닉네임"
                     type="text"
