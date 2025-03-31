@@ -1,5 +1,7 @@
 import { postPlaylist, postPlaylistThumbnail } from "../../api/playlist";
-import { PostPlaylistRequest } from "../../api/type/request/playlist";
+import { PostPlaylistRequest } from '../../api/type/request/playlist';
+import { PostPlaylistResponse } from "../../api/type/response/playlist";
+import { setSessionStorage } from "../../utils/sessionStorage";
 import { useDebouncedMutation } from "../react-query/useDebouncedMutation";
 
 export const useSubmitPlaylistForm = () => {
@@ -40,7 +42,23 @@ export const useSubmitPlaylistForm = () => {
       thumbnailUrl: uploadedImage.result
     };
 
+
     const result = await submitPlaylist(playlistData);
+
+    if (typeof result !== 'object') return false;
+
+    const {result : resultData } = result as PostPlaylistResponse;
+
+    const { playlistCode, accessToken } = resultData;
+
+    console.log("playlistCode", playlistCode);
+    console.log("accessToken", accessToken);
+
+    setSessionStorage({
+      playlistCode,
+      accessToken,
+    })
+
     return result;
   };
 

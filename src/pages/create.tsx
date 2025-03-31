@@ -94,7 +94,7 @@ const Create = () => {
             )}
             <div className="flex flex-col max-w-[448px] h-dvh mx-auto items-center justify-start bg-background px-6">
                 <div
-                    className={`flex flex-col items-center justify-center mt-20 w-full h-[200px] border-[1px] border-dashed rounded-md bg-fill-2 ${dragActive ? "border-main" : "border-stroke"
+                    className={`flex flex-col items-center justify-center mt-[10%] w-full h-[200px] border-[1px] border-dashed rounded-md bg-fill-2 ${dragActive ? "border-main" : "border-stroke"
                         }`}
                     onClick={handleClick}
                 >
