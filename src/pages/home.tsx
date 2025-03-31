@@ -16,7 +16,7 @@ const Home = () => {
     }
 
     const { data } = useSuspenseQuery({
-        queryKey: ["playlist", playlistCode],
+        queryKey: ["playlistMeta", playlistCode],
         queryFn: () => getPlaylistMeta(playlistCode),
     })
 

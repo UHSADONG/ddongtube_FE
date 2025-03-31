@@ -1,10 +1,15 @@
-import { getFetch, postFetch, postFormFetch } from "./fetch/client"
+import { deleteFetch, getFetch, postFetch, postFormFetch } from "./fetch/client"
 import { transformPlaylistThumbnail } from "./transformer/playlist"
 import { PostPlaylistRequest, PostPlaylistThumbnailRequest } from "./type/request/playlist";
 import { GetPlaylistMetaResponse, PostPlaylistResponse } from "./type/response/playlist";
+import { GetPlaylistResponse } from "./type/response/video";
 
 export const getPlaylistMeta = (playlistCode : string) : Promise<GetPlaylistMetaResponse> => {
     return getFetch<GetPlaylistMetaResponse>(`/playlist/meta/${playlistCode}`).then(res => res ?? false);
+}
+
+export const getPlaylist = (playlistCode : string) : Promise<GetPlaylistResponse> => {
+    return getFetch<GetPlaylistResponse>(`/playlist/${playlistCode}`).then(res => res ?? false);
 }
 
 export const postPlaylistThumbnail = (
@@ -20,3 +25,7 @@ export const postPlaylistThumbnail = (
 export const postPlaylist = (body: PostPlaylistRequest): Promise<PostPlaylistResponse | boolean> => {
     return postFetch<PostPlaylistResponse, string>("/playlist", body).then(res => res ?? false)
 };
+
+export const deletePlaylist = (playlistCode: string): Promise<boolean | {}> => {
+    return deleteFetch(`/playlist/${playlistCode}`).then(res => res ?? false)
+}
