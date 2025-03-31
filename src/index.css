@@ -29,6 +29,11 @@
     font-family: 'Pretendard', sans-serif;
 }
 
+*::-webkit-scrollbar {
+  display: none;
+}
+
+
 @theme {
   
     --color-background : #1F1F20;

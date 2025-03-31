@@ -1,10 +1,13 @@
-import { PlayList } from "../../../types/playlist";
+import {  PlaylistMeta } from "../../../types/playlist";
 
 export type PostPlaylistResponse = {
-    playlistCode : string;
-    accessToken : string;
+    result : {
+        playlistCode : string;
+        accessToken : string;
+    }
+    
 }
 
 export type GetPlaylistMetaResponse = {
-    result : Exclude<PlayList, "playlistCode">;
+    result : Exclude<PlaylistMeta, "playlistCode">;
 }

@@ -1,5 +1,6 @@
 import { ApiError } from "../../error/apiError";
 import * as Sentry from '@sentry/react';
+import { getSessionStorage } from "../../utils/sessionStorage";
 
 const baseURL = import.meta.env.VITE_REACT_SERVER_BASE_URL;
 
@@ -22,10 +23,21 @@ async function handleResponse<T>(response: Response): Promise<T | boolean> {
   return true;
 }
 
+
 async function request<T>(url: string, options: RequestInit): Promise<T> {
   if (import.meta.env.DEV) {
     console.log(`${options.method} : `, url);
   }
+
+  const storage = getSessionStorage();
+  if (storage) {
+    const { accessToken } = storage;
+    options.headers = {
+      ...options.headers,
+      Authorization: `Bearer ${accessToken}`,
+    };
+  }
+
   try {
     const response = await fetch(`${baseURL}${url}`, options);
     return handleResponse(response) as Promise<T>;

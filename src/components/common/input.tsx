@@ -1,7 +1,7 @@
 import React from 'react';
 
 type InputProps = {
-    label: string;
+    label?: string;
     type: string;
     placeholder: string;
     value: string;
@@ -13,7 +13,7 @@ type InputProps = {
 };
 
 const Input = ({
-    label,
+    label = '',
     type,
     placeholder,
     value,
