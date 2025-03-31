@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { getSessionStorage, removeSessionStorage } from '../../utils/sessionStorage';
 import { useNavigate } from 'react-router';
 
@@ -9,10 +9,14 @@ export const useAuthCheck = () => {
     useEffect(() => {
         if (!storage || !storage?.playlistCode) {
             removeSessionStorage();
-            navigate("/start");
+            navigate("/start", { replace: true });
         }
     }, []);
+
     return {
+        navigate : (url : string) => {
+            navigate(url, { replace: true });
+        },
         authCheck: storage ? true : false,
         playlistCode : storage?.playlistCode,
     }

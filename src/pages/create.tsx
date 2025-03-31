@@ -43,7 +43,7 @@ const Create = () => {
     } = useCreateForm();
 
     const onCloseModal = () => {
-        navigate("/home");
+        navigate("/home", { replace: true });
     }
 
     const [Modal, _, openModal] = useModal(onCloseModal);
@@ -56,7 +56,7 @@ const Create = () => {
 
     useEffect(() => {
         if (!playlistForm.userName) {
-            navigate("/start")
+            navigate("/start", { replace: true });
         }
     }, [])
 
