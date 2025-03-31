@@ -35,7 +35,7 @@ const Home = () => {
                     <ImageViewer src={thumbnailUrl} />
                     <PlaylistDescription title={title} description="플레이리스트 설명" />
                 </section>
-                <div className="flex flex-col items-start justify-center mt-8 w-full">
+                <div className="flex flex-col items-start justify-center mt-8 w-full overflow-y-scroll mb-[20%]">
                     <label className="text-head-medium-bold font-bold text-font-enabled text-left ml-1 mt-5 mb-3">주인장</label>
                     <Card>
                         <UserCardText user={owner} />

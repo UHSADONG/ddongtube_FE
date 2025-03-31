@@ -118,7 +118,7 @@ const Playlist = () => {
                 {currentVideoId ? (
                     <YoutubeEmbedPlayer
                         videoId={currentVideoId}
-                        onPause={() => console.log("⏸️ 사용자 일시정지")}
+                        onPause={() => console.log("⏸사용자 일시정지")}
                         onEnded={handleNextVideo}
                     />
                 ) : (
@@ -145,24 +145,38 @@ const Playlist = () => {
                 </nav>
                 {
                     <div className="flex flex-col items-start justify-center w-full gap-2">
-                        {playList && playList?.result ?
-                            playList.result.videoList?.map((item, index) => (
-                                <Card key={index}>
+                        {videoList.length > 0 ? (
+                            videoList.map((item, index) => (
+                                <Card
+                                    key={index}
+                                    className={`transition-all duration-300 border-[1px]
+                                        ${index === currentIndex
+                                            ? "border-main"
+                                            : "border-stroke-2"
+                                        }`}
+                                    onClick={() => setCurrentIndex(index)}
+                                >
                                     <section className="flex flex-row items-center justify-between w-full">
                                         <article className="flex flex-col items-start justify-center w-full text-left flex-1">
-                                            <p className="text-font-disabled text-text-medium-md font-medium">{item.authorName}</p>
-                                            <h1 className="text-font-disabled text-text-large-bold font-bold">{item.title}</h1>
+                                            <p className="text-font-disabled text-text-medium-md font-medium">
+                                                {item.authorName}
+                                            </p>
+                                            <h1 className="text-font-disabled text-text-large-bold font-bold">
+                                                {item.title}
+                                            </h1>
                                         </article>
                                         <IconHamburgerDisabled />
                                     </section>
                                 </Card>
-                            )) : (
-                                <p className="w-full text-left text-text-medium-sm text-font-disabled font-medium ml-1">{"재생목록이 없습니다."}</p>
-                            )}
+                            ))
+                        ) : (
+                            <p className="w-full text-left text-text-medium-sm text-font-disabled font-medium ml-1">
+                                재생목록이 없습니다.
+                            </p>
+                        )}
                     </div>
                 }
                 <footer className="flex flex-row items-center justify-between w-full mb-[30%]">
-
                 </footer>
             </div>
 

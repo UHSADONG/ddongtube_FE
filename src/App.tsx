@@ -14,6 +14,7 @@ import Offline from './pages/offline';
 import NotFound from './pages/notFound';
 import Test from './pages/test';
 import Loading from './pages/loading';
+import StartGuest from './pages/startGuest';
 
 const queryClient = new QueryClient(queryClientConfig);
 
@@ -27,11 +28,11 @@ function App() {
         <SentryRoutes>
           <Route path="/" element={<Navigate to="/start" replace />} />
           <Route path="/start" element={<Start />} />
-          <Route path="/start/:playlistCode" element={<Start />} />
+          <Route path="/start/:playlistCode" element={<StartGuest />} />
           <Route path="/create" element={<Create />} />
           <Route path="/home" element={<Home />} />
           <Route path="/playlist" element={<Playlist />} />
-          <Route path="/error" element={<Error />} />
+          <Route path="/error/:code" element={<Error />} />
           <Route path="/offline" element={<Offline />} />
           <Route path="/test" element={<Test />} />
           <Route path="*" element={<NotFound />} />

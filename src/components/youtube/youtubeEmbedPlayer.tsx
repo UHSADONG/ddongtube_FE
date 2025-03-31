@@ -1,48 +1,34 @@
+import React from "react";
+import ReactPlayer from "react-player/youtube";
 
-import React, { useEffect, useRef } from "react";
-
-interface YoutubeEmbedPlayerProps {
+interface YoutubePlayerProps {
   videoId: string;
   onPause?: () => void;
   onEnded?: () => void;
   autoplay?: boolean;
 }
 
-const YoutubeEmbedPlayer = ({ videoId, onPause, onEnded, autoplay = true }: YoutubeEmbedPlayerProps) => {
-  const iframeRef = useRef<HTMLIFrameElement | null>(null);
-
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (!event.data || typeof event.data !== "string") return;
-      try {
-        const data = JSON.parse(event.data);
-        if (data.event === "infoDelivery" && data.info) {
-          if (data.info.playerState === 2 && onPause) {
-            onPause();
-          }
-          if (data.info.playerState === 0 && onEnded) {
-            onEnded();
-          }
-        }
-      } catch (_) { }
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, [onPause, onEnded]);
-
-  const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=${autoplay ? 1 : 0}&enablejsapi=1`;
+const YoutubePlayer: React.FC<YoutubePlayerProps> = ({
+  videoId,
+  onPause,
+  onEnded,
+  autoplay = true,
+}) => {
+  const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
   return (
-    <iframe
-      ref={iframeRef}
-      className="w-full aspect-video rounded-md"
-      src={embedUrl}
-      title="YouTube Video"
-      allow="autoplay; encrypted-media"
-      allowFullScreen
-    ></iframe>
+    <div className="w-full aspect-video rounded-md overflow-hidden">
+      <ReactPlayer
+        url={videoUrl}
+        playing={autoplay}
+        controls
+        width="100%"
+        height="100%"
+        onPause={onPause}
+        onEnded={onEnded}
+      />
+    </div>
   );
 };
 
-export default YoutubeEmbedPlayer;
+export default YoutubePlayer;
