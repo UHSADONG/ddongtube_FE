@@ -1,9 +1,7 @@
 import Button from "../components/common/button"
 import Input from "../components/common/input"
-import StartImage from "../assets/start/img_start.webp"
 import { useStartForm } from "../hooks/form/useStartForm";
 import { ResponsiveContainer } from "../container/responsiveContainer";
-import { useEffect } from "react";
 import { removeSessionStorage, setSessionStorage } from "../utils/sessionStorage";
 import { useNavigate, useParams } from "react-router";
 import ImageViewer from "../components/common/imageViewer";
@@ -12,8 +10,8 @@ import { useDebouncedMutation } from "../hooks/react-query/useDebouncedMutation"
 import { postUser } from "../api/user";
 import { PostUserResponse } from "../api/type/response/user";
 import { ApiError } from "../error/apiError";
-
-let timeoutPromise: Promise<void> | null = null;
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { getPlaylistMetaPublic } from "../api/playlist";
 
 const StartGuest = () => {
 
@@ -23,9 +21,25 @@ const StartGuest = () => {
 
     const navigate = useNavigate();
 
-    useEffect(() => {
-        removeSessionStorage();
-    }, []);
+    const removeSessionStorageAsync = async () => {
+        return new Promise((resolve) => {
+            removeSessionStorage();
+            resolve(true);
+        })
+    }
+
+    const { data } = useSuspenseQuery({
+        queryKey: ["playlistMetaPublic", playlistCode],
+        queryFn: async () => {
+            const result = await removeSessionStorageAsync().then(() => getPlaylistMetaPublic(playlistCode!));
+            return result;
+        },
+        retry: 1,
+        staleTime: 0
+    });
+
+    const { title, thumbnailUrl, description } = data.result;
+
 
     const { form, errors, onChange } = useStartForm();
 
@@ -43,7 +57,7 @@ const StartGuest = () => {
         try {
             const result = await mutateAsync({ nickname: form.nickname, password: form.password });
             setSessionStorage({
-                accessToken: (result as PostUserResponse).result,
+                accessToken: (result as PostUserResponse).result.accessToken,
                 playlistCode: playlistCode!
             })
             navigate("/home", { replace: true });
@@ -62,8 +76,8 @@ const StartGuest = () => {
     return (
         <ResponsiveContainer>
             <section key={`${playlistCode}-image`} className="flex flex-col items-start justify-center mt-[10%] w-full">
-                <ImageViewer src={""} />
-                <PlaylistDescription title={"CHODAEJANG"} description="플레이리스트 설명" isCenter={true} />
+                <ImageViewer src={thumbnailUrl} />
+                <PlaylistDescription title={title} description={description} isCenter={true} />
             </section>
             <Input
                 label="닉네임"
@@ -88,5 +102,6 @@ const StartGuest = () => {
         </ResponsiveContainer>
     )
 }
+
 
 export default StartGuest;

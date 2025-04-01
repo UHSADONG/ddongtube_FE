@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import ImageViewer from "../components/common/imageViewer";
 import PlaylistDescription from "../components/common/playlistDescription";
@@ -16,11 +16,11 @@ import IconCloseModal from "../assets/playlist/ic_close_modal.svg?react";
 
 import useAddMusicModal from "../hooks/modal/useAddMusicModal";
 import Input from "../components/common/input";
-import useYoutubeState from "../hooks/youtube/useYoutubeState";
 import { useDebouncedMutation } from '../hooks/react-query/useDebouncedMutation';
 import { postVideo } from "../api/video";
 import { extractYoutubeVideoId } from "../utils/youtube";
 import YoutubeEmbedPlayer from "../components/youtube/youtubeEmbedPlayer";
+import useYoutubeState from "../hooks/youtube/useYoutubeState";
 
 const Playlist = () => {
 
@@ -37,10 +37,9 @@ const Playlist = () => {
 
     const queryClient = useQueryClient();
 
-    const { data: playList } = useQuery({
+    const { data: playList } = useSuspenseQuery({
         queryKey: ["playlist", playlistCode],
         queryFn: () => getPlaylist(playlistCode),
-        enabled: !!playlistCode,
         retry: 1,
         refetchOnWindowFocus: true,
         staleTime: 0
@@ -49,12 +48,15 @@ const Playlist = () => {
     const {
         thumbnailUrl,
         title,
+        description
     } = playListMeta.result;
 
     const {
         youtubeUrl,
-        setYoutubeUrl,
         resetYoutubeUrl,
+        handleYoutubeUrlChange,
+        handleVideoDescriptionChange,
+        videoDescription,
         isValid,
         videoId,
         reason
@@ -62,7 +64,7 @@ const Playlist = () => {
 
     const { mutateAsync: submitYoutubeUrl } = useDebouncedMutation(
         {
-            mutationFn: ({ playlistCode, youtubeUrl }: { playlistCode: string; youtubeUrl: string }) => postVideo(playlistCode, { videoUrl: youtubeUrl }),
+            mutationFn: ({ playlistCode, youtubeUrl, videoDescription }: { playlistCode: string; youtubeUrl: string, videoDescription: string }) => postVideo(playlistCode, { videoUrl: youtubeUrl, videoDescription: "" }),
             onSuccess: (data) => {
                 console.log(data);
             },
@@ -82,6 +84,7 @@ const Playlist = () => {
         await submitYoutubeUrl({
             playlistCode,
             youtubeUrl: youtubeUrl,
+            videoDescription: ""
         });
 
         queryClient.invalidateQueries({
@@ -100,6 +103,7 @@ const Playlist = () => {
     const handleNextVideo = () => {
         setCurrentIndex((prev) => (prev + 1) % videoList.length);
     };
+
 
     return (
         <ResponsiveContainer style={{
@@ -125,14 +129,14 @@ const Playlist = () => {
                     <ImageViewer src={thumbnailUrl} />
                 )}
                 <div className="flex flex-row items-end justify-center w-full my-3">
-                    <PlaylistDescription title={title} description="플레이리스트 설명" />
+                    <PlaylistDescription title={videoList[currentIndex].title} description={videoList[currentIndex].authorName} />
                     <button onClick={handleNextVideo}>
                         <PlayNext />
                     </button>
                 </div>
                 <Card>
                     <p className="text-text-medium-md font-medium text-font-enabled">
-                        바쿠고 카츠키는 신이 맞다. 그를 숭배해야만해.. 무조건.. 무조건 숭배해야만해 어? 알겠냐고?? 어어어?? 진짜
+                        {videoList[currentIndex].description === "" || !videoList[currentIndex].description ? "상세 설명이 없습니다." : videoList[currentIndex].description}
                     </p>
                 </Card>
             </section>
@@ -159,7 +163,7 @@ const Playlist = () => {
                                     <section className="flex flex-row items-center justify-between w-full">
                                         <article className="flex flex-col items-start justify-center w-full text-left flex-1">
                                             <p className="text-font-disabled text-text-medium-md font-medium">
-                                                {item.authorName}
+                                                {item.user.name}
                                             </p>
                                             <h1 className="text-font-disabled text-text-large-bold font-bold">
                                                 {item.title}
@@ -195,24 +199,34 @@ const Playlist = () => {
                         className={`w-full overflow-hidden transition-[max-height] duration-500 ease-in-out ${isValid && videoId ? 'max-h-[500px] my-3' : 'max-h-0'
                             }`}
                     >
-                        {isValid && videoId && (
-                            <iframe
-                                className="w-full aspect-video rounded-md"
-                                src={`https://www.youtube.com/embed/${videoId}`}
-                                title="Deeply YouTube video preview"
-                                allowFullScreen
-                            ></iframe>
-                        )}
+                        <iframe
+                            className={`w-full aspect-video rounded-md transition-opacity duration-300 ${isValid && videoId ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                                }`}
+                            src={`https://www.youtube.com/embed/${videoId}`}
+                            title="Deeply YouTube video preview"
+                            allowFullScreen
+                        ></iframe>
                     </div>
                     <Input
                         placeholder="유튜브 링크를 입력해주세요"
                         value={youtubeUrl}
-                        onChange={(e) => setYoutubeUrl(e.target.value)}
+                        onChange={handleYoutubeUrlChange}
                         isError={!!youtubeUrl && !isValid}
                         errorMessage={!!youtubeUrl && !isValid ? reason : ""}
                         className="mt-2 mb-8"
                         type="text"
                     />
+                    {isValid && videoId && (
+                        <Input
+                            placeholder="영상 설명을 입력해주세요"
+                            value={videoDescription}
+                            onChange={handleVideoDescriptionChange}
+                            isError={!!youtubeUrl && !isValid}
+                            errorMessage={!!youtubeUrl && !isValid ? reason : ""}
+                            className="-mt-6 mb-8"
+                            type="text"
+                        />
+                    )}
                     <button
                         onClick={() => onSumbitYoutubeUrl()}
                         disabled={!!youtubeUrl && !isValid}

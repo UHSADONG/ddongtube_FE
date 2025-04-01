@@ -13,6 +13,7 @@ export type PlaylistMeta = {
     owner : string;
     userList : string[];
     playlistCode ?: string;
+    description : string;
 }
 
 export interface PlayList extends PlaylistMeta {
