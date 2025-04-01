@@ -12,4 +12,5 @@ export type Video = {
     thumbnailWidth : number;
     thumbnailHeight : number;
     createdAt : string;
+    description : string;
 }

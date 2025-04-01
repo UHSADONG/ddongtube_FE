@@ -8,6 +8,11 @@ export const getPlaylistMeta = (playlistCode : string) : Promise<GetPlaylistMeta
     return getFetch<GetPlaylistMetaResponse>(`/playlist/meta/${playlistCode}`).then(res => res ?? false);
 }
 
+
+export const getPlaylistMetaPublic = (playlistCode : string) : Promise<GetPlaylistMetaResponse> => {
+    return getFetch<GetPlaylistMetaResponse>(`/playlist/meta/${playlistCode}/public`).then(res => res ?? false);
+}
+
 export const getPlaylist = (playlistCode : string) : Promise<GetPlaylistResponse> => {
     return getFetch<GetPlaylistResponse>(`/playlist/${playlistCode}`).then(res => res ?? false);
 }

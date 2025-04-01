@@ -1,3 +1,6 @@
 export type PostUserResponse = {
-    result : string;
+    result : {
+        accessToken : string;
+        isAdmin : boolean;
+    };
 } 
