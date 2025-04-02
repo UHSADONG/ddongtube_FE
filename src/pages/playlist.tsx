@@ -22,7 +22,6 @@ import { extractYoutubeVideoId } from "../utils/youtube";
 import YoutubeEmbedPlayer from "../components/youtube/youtubeEmbedPlayer";
 import useYoutubeState from "../hooks/youtube/useYoutubeState";
 import { createSSEConnection } from "../api/fetch/sse";
-import { getSessionStorage } from "../utils/sessionStorage";
 
 const Playlist = () => {
 
@@ -120,7 +119,6 @@ const Playlist = () => {
     const currentVideo = videoList[currentIndex];
     const currentVideoId = extractYoutubeVideoId(currentVideo?.url || "");
     const handleNextVideo = () => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % videoList.length);
         const nextVideo = videoList[(currentIndex + 1) % videoList.length];
         const nextVideoCode = nextVideo.code;
         if (nextVideoCode) {
@@ -147,20 +145,18 @@ const Playlist = () => {
             (error) => {
                 console.error("SSE error:", error);
             },
-            {
-                Authorization: `Bearer ${accessToken}`,
-            }
         );
 
-        sse.addEventListener("videoAdded", (event) => {
-            const newVideo = JSON.parse(event.data);
-            console.log("New video added:", newVideo);
-            queryClient.invalidateQueries({
-                queryKey: ["playlist", playlistCode],
-            });
-        });
+        // sse.addEventListener("videoAdded", (event) => {
+        //     const newVideo = JSON.parse(event.data);
+        //     console.log("New video added:", newVideo);
+        //     queryClient.invalidateQueries({
+        //         queryKey: ["playlist", playlistCode],
+        //     });
+        // });
 
         return () => {
+            console.log("Closing SSE connection");
             sse.close();
         };
     }, [playlistCode, accessToken]);
