@@ -51,9 +51,6 @@ export const useSubmitPlaylistForm = () => {
 
     const { playlistCode, accessToken } = resultData;
 
-    console.log("playlistCode", playlistCode);
-    console.log("accessToken", accessToken);
-
     setSessionStorage({
       playlistCode,
       accessToken,
