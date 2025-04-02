@@ -17,6 +17,27 @@ export default defineConfig({
     VitePWA({ 
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png'],
+      manifest: {
+        name: 'Deeeply',
+        short_name: '디플리',
+        description: '안 들어오면..나..24시간 뒤에..터진다?ㅋ',
+        icons: [
+          {
+            src: './favicon.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: './favicon.png',
+            sizes: '512x512',
+            type: 'image/png'
+          }
+        ],
+        start_url: '/start',
+        display: 'standalone',
+        background_color: '#1F1F20',
+        theme_color: '#D93F0F'
+      }
      })
   ],
 
