@@ -15,6 +15,7 @@ export function createSSEConnection(
         Authorization: `Bearer ${accessToken}`,
       },
       withCredentials: true,
+      heartbeatTimeout: 30 * 60 * 1000, 
   } : {});
 
   eventSource.onmessage = (event) => {

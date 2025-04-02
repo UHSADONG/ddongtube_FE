@@ -22,6 +22,7 @@ import { extractYoutubeVideoId } from "../utils/youtube";
 import YoutubeEmbedPlayer from "../components/youtube/youtubeEmbedPlayer";
 import useYoutubeState from "../hooks/youtube/useYoutubeState";
 import { createSSEConnection } from "../api/fetch/sse";
+import { EventSourcePolyfill, NativeEventSource } from "event-source-polyfill";
 
 const Playlist = () => {
 
@@ -135,30 +136,45 @@ const Playlist = () => {
     };
 
     useEffect(() => {
-        if (!playlistCode || !accessToken) return;
+        if (!playlistCode) return;
+        let fullURL = `${import.meta.env.VITE_REACT_SERVER_BASE_URL}/sse/${playlistCode}/connect`;
+        const EventSourcePolyfill = (window as any).EventSourcePolyfill || EventSource;
+        const accessToken = sessionStorage.getItem("accessToken")
+        if (!accessToken) { return }
+        const connect = () => {
+            const eventSource = new EventSourcePolyfill(fullURL,
+                accessToken ?
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                        heartbeatTimeout: 30 * 60 * 1000,
+                    } : {});
 
-        const sse = createSSEConnection(
-            `/sse/${playlistCode}/connect`,
-            (data) => {
-                console.log("SSE message:", data);
-            },
-            (error) => {
-                console.error("SSE error:", error);
-            },
-        );
+            eventSource.onopen = () => {
+                console.log("SSE connection opened");
+            }
 
-        // sse.addEventListener("videoAdded", (event) => {
-        //     const newVideo = JSON.parse(event.data);
-        //     console.log("New video added:", newVideo);
-        //     queryClient.invalidateQueries({
-        //         queryKey: ["playlist", playlistCode],
-        //     });
-        // });
+            eventSource.onmessage = (event: MessageEvent) => {
+                try {
+                    const parsedData = JSON.parse(event.data);
+                    console.log("SSE message:", parsedData);
+                } catch (e) {
+                    console.warn("Failed to parse SSE message:", e);
+                }
+            };
 
-        return () => {
-            console.log("Closing SSE connection");
-            sse.close();
-        };
+            eventSource.onerror = (e: Error) => {
+                console.error("SSE error:", e);
+                eventSource.close();
+            };
+
+            return () => {
+                eventSource.close();
+                console.log("SSE connection closed");
+            };
+        }
+        return connect();
     }, [playlistCode, accessToken]);
 
 
