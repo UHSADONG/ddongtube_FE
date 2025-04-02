@@ -1,10 +1,22 @@
+// utils/sse.ts
+import { EventSourcePolyfill, NativeEventSource } from "event-source-polyfill";
 export function createSSEConnection(
   url: string,
   onMessage: (data: any) => void,
   onError?: (e: Event) => void,
 ): EventSource {
-  const fullURL = `${import.meta.env.VITE_REACT_SERVER_BASE_URL}${url}`;
-  const eventSource = new EventSource(fullURL);
+  let fullURL = `${import.meta.env.VITE_REACT_SERVER_BASE_URL}${url}`;
+  const EventSource = EventSourcePolyfill || NativeEventSource;
+  const accessToken = sessionStorage.getItem("accessToken")
+  const eventSource = new EventSource(fullURL,
+    accessToken ? 
+    {
+    headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      withCredentials: true,
+      heartbeatTimeout: 30 * 60 * 1000, 
+  } : {});
 
   eventSource.onmessage = (event) => {
     try {

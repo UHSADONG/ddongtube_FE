@@ -1,30 +1,27 @@
-
-import { useCallback, useState } from "react";
-import { useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { EventSourcePolyfill, NativeEventSource } from "event-source-polyfill";
+import { useAuthCheck } from "../hooks/auth/useAuthCheck";
+import { getPlaylist, getPlaylistMeta, postPlaylistNowPlaying } from "../api/playlist";
+import { Video } from "../types/video";
 import ImageViewer from "../components/common/imageViewer";
 import PlaylistDescription from "../components/common/playlistDescription";
 import { ResponsiveContainer } from "../container/responsiveContainer";
-import { useAuthCheck } from "../hooks/auth/useAuthCheck";
-import { getPlaylist, getPlaylistMeta } from "../api/playlist";
 import Card from "../components/common/card";
 import FloatingButton from "../components/common/floatingButton";
 
 import IconHome from "../assets/playlist/ic_home.svg?react";
 import PlayNext from "../assets/playlist/ic_play_next.svg?react";
 import IconHamburgerDisabled from "../assets/playlist/ic_hamburger_disabled.svg?react";
-import IconCloseModal from "../assets/playlist/ic_close_modal.svg?react";
 
-import useAddMusicModal from "../hooks/modal/useAddMusicModal";
-import Input from "../components/common/input";
-import { useDebouncedMutation } from '../hooks/react-query/useDebouncedMutation';
-import { postVideo } from "../api/video";
+import { useDebouncedMutation } from "../hooks/react-query/useDebouncedMutation";
 import { extractYoutubeVideoId } from "../utils/youtube";
 import YoutubeEmbedPlayer from "../components/youtube/youtubeEmbedPlayer";
-import useYoutubeState from "../hooks/youtube/useYoutubeState";
+import PlaylistAddMusicModal from "../components/modal/playlistAddModal";
+import * as Sentry from '@sentry/react';
 
 const Playlist = () => {
-
-    const { navigate, playlistCode } = useAuthCheck();
+    const { navigate, playlistCode, accessToken } = useAuthCheck();
 
     if (!playlistCode) {
         return null;
@@ -36,85 +33,196 @@ const Playlist = () => {
     });
 
     const queryClient = useQueryClient();
-
     const { data: playList } = useSuspenseQuery({
         queryKey: ["playlist", playlistCode],
         queryFn: () => getPlaylist(playlistCode),
         retry: 1,
         refetchOnWindowFocus: true,
-        staleTime: 0
-    })
+        staleTime: 0,
+    });
 
-    const {
-        thumbnailUrl,
-        title,
-        description
-    } = playListMeta.result;
+    const { thumbnailUrl } = playListMeta.result;
 
-    const {
-        youtubeUrl,
-        resetYoutubeUrl,
-        handleYoutubeUrlChange,
-        handleVideoDescriptionChange,
-        videoDescription,
-        isValid,
-        videoId,
-        reason
-    } = useYoutubeState();
+    const [isLive, setIsLive] = useState(false);
+    const [currentIndex, setCurrentIndex] = useState(0);
 
-    const { mutateAsync: submitYoutubeUrl } = useDebouncedMutation(
+    const videoList = useMemo(() => {
+        return playList?.result?.videoList?.sort((v1, v2) => v1.priority - v2.priority) || [];
+    }, [playList?.result?.videoList]);
+
+    const currentVideo = videoList[currentIndex];
+    const currentVideoId = extractYoutubeVideoId(currentVideo?.url || "");
+
+    const { mutateAsync: nextPlayPost } = useDebouncedMutation(
         {
-            mutationFn: ({ playlistCode, youtubeUrl, videoDescription }: { playlistCode: string; youtubeUrl: string, videoDescription: string }) => postVideo(playlistCode, { videoUrl: youtubeUrl, videoDescription: "" }),
+            mutationFn: ({
+                playlistCode,
+                videoCode,
+            }: {
+                playlistCode: string;
+                videoCode: string;
+            }) => postPlaylistNowPlaying(playlistCode, videoCode),
             onSuccess: (data) => {
-                console.log(data);
+                if (!isLive) {
+                    setCurrentIndex((prevIndex) => (prevIndex + 1) % videoList.length);
+                }
             },
             onError: (error) => {
                 console.error(error);
-            }
+            },
         },
         500,
         true
-    )
+    );
 
-    const [AddMusicModal, _, openModal, closeModal] = useAddMusicModal(() => resetYoutubeUrl(), () => { });
+    const handleNextVideo = useCallback(
+        (touchedIndex: number = -1) => {
+            const nextVideo =
+                touchedIndex === -1
+                    ? videoList[(currentIndex + 1) % videoList.length]
+                    : videoList[touchedIndex];
+            if (!nextVideo) return;
 
-    const onSumbitYoutubeUrl = async () => {
-        if (!videoId) return;
+            const nextVideoCode = nextVideo.code;
+            if (nextVideoCode) {
+                nextPlayPost({ playlistCode, videoCode: nextVideoCode }).then(() => {
+                    if (!isLive) {
+                        if (touchedIndex === -1) {
+                            setCurrentIndex((prevIndex) => (prevIndex + 1) % videoList.length);
+                        } else {
+                            setCurrentIndex(touchedIndex);
+                        }
+                    }
+                });
+            }
+        },
+        [currentIndex, videoList, playlistCode, isLive, nextPlayPost]
+    );
 
-        await submitYoutubeUrl({
-            playlistCode,
-            youtubeUrl: youtubeUrl,
-            videoDescription: ""
-        });
+    useEffect(() => {
+        const card = document.querySelectorAll(".playlist-card")[currentIndex];
+        if (card) {
+            card.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+                inline: "center",
+            });
+        }
+    }, [currentIndex]);
 
-        queryClient.invalidateQueries({
-            queryKey: ["playlist", playlistCode],
-        });
+    const eventSourceRef = useRef<EventSource | null>(null);
+    const reconnectAttemptRef = useRef(0);
+    const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-        closeModal();
-        resetYoutubeUrl();
+    useEffect(() => {
+        if (!playlistCode || !accessToken) return;
 
-    }
+        let fullURL = `${import.meta.env.VITE_REACT_SERVER_BASE_URL}/sse/${playlistCode}/connect`;
+        const EventSourceImpl = EventSourcePolyfill || NativeEventSource;
 
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const videoList = playList?.result?.videoList || [];
-    const currentVideo = videoList[currentIndex];
-    const currentVideoId = extractYoutubeVideoId(currentVideo?.url || "");
-    const handleNextVideo = () => {
-        setCurrentIndex((prev) => (prev + 1) % videoList.length);
-    };
+        const maxReconnectAttempts = 5;
 
+        const connect = () => {
+            if (eventSourceRef.current) {
+                eventSourceRef.current.close();
+            }
+
+            eventSourceRef.current = new EventSourceImpl(fullURL, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+                heartbeatTimeout: 30 * 60 * 1000,
+            });
+
+            eventSourceRef.current.addEventListener("connect", () => {
+                setIsLive(true);
+                reconnectAttemptRef.current = 0;
+            });
+
+            eventSourceRef.current.addEventListener("video", (message: MessageEvent) => {
+                queryClient.invalidateQueries({
+                    queryKey: ["playlist", playlistCode],
+                });
+                queryClient.invalidateQueries({
+                    queryKey: ["playlistMeta", playlistCode],
+                });
+            });
+
+            eventSourceRef.current.addEventListener("playing", (message: MessageEvent) => {
+                const data = JSON.parse(message.data);
+                if (data?.code) {
+                    const videoCode = data.code;
+                    const videoIndex = videoList.findIndex((video: Video) => video.code === videoCode);
+                    if (videoIndex !== -1) {
+                        setCurrentIndex(videoIndex);
+                    }
+                }
+            });
+
+            eventSourceRef.current.onerror = function (error) {
+                eventSourceRef.current?.close();
+                setIsLive(false);
+                Sentry.withScope((scope) => {
+                    scope.setContext("SSE", {
+                        playlistCode,
+                    });
+                    scope.setTag("errorType", "SSE Error");
+                    scope.setTag("errorCode", "SSE000");
+                    Sentry.captureException(error);
+                });
+
+                if (reconnectAttemptRef.current < maxReconnectAttempts) {
+                    reconnectAttemptRef.current++;
+                    const backoffTime = Math.min(1000 * Math.pow(2, reconnectAttemptRef.current - 1), 16000);
+
+                    if (reconnectTimeoutRef.current) {
+                        clearTimeout(reconnectTimeoutRef.current);
+                    }
+
+                    reconnectTimeoutRef.current = setTimeout(() => {
+                        connect();
+                    }, backoffTime);
+                } else {
+                    // SSE 포기
+                    throw new Error("SSE connection failed after multiple attempts");
+                }
+            };
+        };
+
+        connect();
+
+        return () => {
+            if (eventSourceRef.current) {
+                eventSourceRef.current.close();
+                eventSourceRef.current = null;
+            }
+            if (reconnectTimeoutRef.current) {
+                clearTimeout(reconnectTimeoutRef.current);
+                reconnectTimeoutRef.current = null;
+            }
+            setIsLive(false);
+            console.log("SSE connection closed due to component unmount");
+        };
+    }, [playlistCode, accessToken, videoList, queryClient]);
+
+    const [isAddMusicModalOpen, setIsAddMusicModalOpen] = useState(false);
+
+    const openAddMusicModal = useCallback(() => {
+        setIsAddMusicModalOpen(true);
+    }, []);
+
+    const closeAddMusicModal = useCallback(() => {
+        setIsAddMusicModalOpen(false);
+    }, []);
 
     return (
-        <ResponsiveContainer style={{
-            overflowY: "auto",
-        }}>
+        <ResponsiveContainer style={{ overflowY: "auto" }}>
             <nav className="relative flex items-center justify-center mt-[10%] py-3 w-full">
-                <div className="absolute left-0" onClick={() => navigate('/home')}>
+                <div className="absolute left-0" onClick={() => navigate("/home")}>
                     <IconHome />
                 </div>
-                <h1 className="text-text-medium-sm font-semibold text-font-disabled text-center">
-                    23명이 함께 보고 있어요!
+                <h1 className={`text-text-medium-sm font-semibold text-center transition-colors duration-300 ${isLive ? "text-main" : "text-font-disabled"}`}>
+                    {isLive ? "🟢 함께 보고 있어요" : "혼자 보고 있어요 😶"}
                 </h1>
             </nav>
 
@@ -123,20 +231,25 @@ const Playlist = () => {
                     <YoutubeEmbedPlayer
                         videoId={currentVideoId}
                         onPause={() => console.log("⏸사용자 일시정지")}
-                        onEnded={handleNextVideo}
+                        onEnded={() => handleNextVideo()}
                     />
                 ) : (
                     <ImageViewer src={thumbnailUrl} />
                 )}
                 <div className="flex flex-row items-end justify-center w-full my-3">
-                    <PlaylistDescription title={videoList[currentIndex]?.title ?? "영상을 추가해주세요"} description={videoList[currentIndex]?.authorName ?? "영상이 없습니다"} />
-                    <button onClick={handleNextVideo}>
+                    <PlaylistDescription
+                        title={videoList[currentIndex]?.title ?? "영상 없음"}
+                        description={videoList[currentIndex]?.authorName ?? "영상이 없습니다"}
+                    />
+                    <button onClick={() => handleNextVideo()}>
                         <PlayNext />
                     </button>
                 </div>
                 <Card>
                     <p className="text-text-medium-md font-medium text-font-enabled">
-                        {videoList[currentIndex]?.description === "" || !videoList[currentIndex]?.description ? "상세 설명이 없습니다." : videoList[currentIndex].description}
+                        {videoList[currentIndex]?.description === "" || !videoList[currentIndex]?.description
+                            ? "상세 설명이 없습니다."
+                            : videoList[currentIndex].description}
                     </p>
                 </Card>
             </section>
@@ -147,96 +260,49 @@ const Playlist = () => {
                         재생목록
                     </label>
                 </nav>
-                {
-                    <div className="flex flex-col items-start justify-center w-full gap-2">
-                        {videoList.length > 0 ? (
-                            videoList.map((item, index) => (
-                                <Card
-                                    key={index}
-                                    className={`transition-all duration-300 border-[1px]
-                                        ${index === currentIndex
-                                            ? "border-main"
-                                            : "border-stroke-2"
-                                        }`}
-                                    onClick={() => setCurrentIndex(index)}
-                                >
-                                    <section className="flex flex-row items-center justify-between w-full">
-                                        <article className="flex flex-col items-start justify-center w-full text-left flex-1">
-                                            <p className="text-font-disabled text-text-medium-md font-medium">
-                                                {item.user.name}
-                                            </p>
-                                            <h1 className="text-font-disabled text-text-large-bold font-bold">
-                                                {item.title}
-                                            </h1>
-                                        </article>
-                                        <IconHamburgerDisabled />
-                                    </section>
-                                </Card>
-                            ))
-                        ) : (
-                            <p className="w-full text-left text-text-medium-sm text-font-disabled font-medium ml-1">
-                                재생목록이 없습니다.
-                            </p>
-                        )}
-                    </div>
-                }
-                <footer className="flex flex-row items-center justify-between w-full mb-[30%]">
-                </footer>
-            </div>
-
-            <FloatingButton text="영상 추가하기" onClick={() => openModal()} />
-            <AddMusicModal>
-                <section className="flex flex-col items-center justify-start h-full w-full">
-                    <nav className="relative flex items-center justify-center w-full">
-                        <button className="absolute right-0" onClick={closeModal}>
-                            <IconCloseModal />
-                        </button>
-                        <h1 className="text-head-medium-bold font-bold py-2 text-white text-center">
-                            링크 추가
-                        </h1>
-                    </nav>
-                    <div
-                        className={`w-full overflow-hidden transition-[max-height] duration-500 ease-in-out ${isValid && videoId ? 'max-h-[500px] my-3' : 'max-h-0'
-                            }`}
-                    >
-                        <iframe
-                            className={`w-full aspect-video rounded-md transition-opacity duration-300 ${isValid && videoId ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                                }`}
-                            src={`https://www.youtube.com/embed/${videoId}`}
-                            title="Deeply YouTube video preview"
-                            allowFullScreen
-                        ></iframe>
-                    </div>
-                    <Input
-                        placeholder="유튜브 링크를 입력해주세요"
-                        value={youtubeUrl}
-                        onChange={handleYoutubeUrlChange}
-                        isError={!!youtubeUrl && !isValid}
-                        errorMessage={!!youtubeUrl && !isValid ? reason : ""}
-                        className="mt-2 mb-8"
-                        type="text"
-                    />
-                    {isValid && videoId && (
-                        <Input
-                            placeholder="영상 설명을 입력해주세요"
-                            value={videoDescription}
-                            onChange={handleVideoDescriptionChange}
-                            isError={!!youtubeUrl && !isValid}
-                            errorMessage={!!youtubeUrl && !isValid ? reason : ""}
-                            className="-mt-6 mb-8"
-                            type="text"
-                        />
+                <div className="flex flex-col items-start justify-center w-full gap-2">
+                    {videoList.length > 0 ? (
+                        videoList.map((item, index) => (
+                            <Card
+                                key={item.code}
+                                className={`playlist-card transition-all duration-300 border-[1px] ${index === currentIndex ? "border-main" : "border-stroke-2"
+                                    }`}
+                                onClick={() => handleNextVideo(index)}
+                            >
+                                <section className="flex flex-row items-center justify-between w-full">
+                                    <article className="flex flex-col items-start justify-center w-full text-left flex-1">
+                                        <p
+                                            className={`${index === currentIndex ? "text-font-enabled" : "text-font-disabled"
+                                                } text-text-medium-md font-medium`}
+                                        >
+                                            {item.user.name}
+                                        </p>
+                                        <h1
+                                            className={`${index === currentIndex ? "text-font-enabled" : "text-font-disabled"
+                                                } text-text-large-bold font-bold`}
+                                        >
+                                            {item.title}
+                                        </h1>
+                                    </article>
+                                    <IconHamburgerDisabled />
+                                </section>
+                            </Card>
+                        ))
+                    ) : (
+                        <p className="w-full text-left text-text-medium-sm text-font-disabled font-medium ml-1">
+                            재생목록이 없습니다.
+                        </p>
                     )}
-                    <button
-                        onClick={() => onSumbitYoutubeUrl()}
-                        disabled={!!youtubeUrl && !isValid}
-                        className={`w-full h-fit text-text-large-bold font-bold text-white py-3 px-6 rounded-xl ${!!youtubeUrl && !isValid ? "bg-font-disabled" : "bg-main hover:bg-main-focus"} `}
-                    >
-                        확인
-                    </button>
-                </section>
-            </AddMusicModal>
-        </ResponsiveContainer>
+                </div>
+                <footer className="flex flex-row items-center justify-between w-full mb-[30%]"></footer>
+            </div>
+            <FloatingButton text="영상 추가하기" onClick={openAddMusicModal} />
+            <PlaylistAddMusicModal
+                isOpen={isAddMusicModalOpen}
+                onClose={closeAddMusicModal}
+                playlistCode={playlistCode}
+            />
+        </ResponsiveContainer >
     );
 };
 

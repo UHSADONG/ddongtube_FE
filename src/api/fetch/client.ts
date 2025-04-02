@@ -80,7 +80,7 @@ export async function getFetch<T>(
 
 export async function postFetch<T,K>(
   url: string,
-  body?: Record<string, K | K[]>,
+  body?: Record<string, K | K[]> | K,
 ): Promise<T | boolean> {
   return request<T | boolean>(url, {
     method: "POST",

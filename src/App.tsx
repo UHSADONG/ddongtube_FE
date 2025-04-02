@@ -32,6 +32,7 @@ function App() {
           <Route path="/create" element={<Create />} />
           <Route path="/home" element={<Home />} />
           <Route path="/playlist" element={<Playlist />} />
+          <Route path="/error" element={<Error />} />
           <Route path="/error/:code" element={<Error />} />
           <Route path="/offline" element={<Offline />} />
           <Route path="/test" element={<Test />} />
