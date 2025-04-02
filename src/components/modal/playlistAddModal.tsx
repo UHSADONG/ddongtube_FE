@@ -12,7 +12,7 @@ import useYoutubeState from "../../hooks/youtube/useYoutubeState";
 interface PlaylistAddMusicModalProps {
     isOpen: boolean;
     onClose: () => void;
-    playlistCode: string; // 영상 업로드할 playlist 식별자
+    playlistCode: string;
 }
 
 function PlaylistAddMusicModal({
@@ -22,7 +22,6 @@ function PlaylistAddMusicModal({
 }: PlaylistAddMusicModalProps) {
     const queryClient = useQueryClient();
 
-    // useYoutubeState 훅으로 유튜브 링크, 설명, 유효성, videoId 등 관리
     const {
         youtubeUrl,
         resetYoutubeUrl,
@@ -34,7 +33,6 @@ function PlaylistAddMusicModal({
         reason,
     } = useYoutubeState();
 
-    // 영상 추가 API (useDebouncedMutation은 프로젝트별로 구현 다를 수 있음)
     const { mutateAsync: submitYoutubeUrl } = useDebouncedMutation(
         {
             mutationFn: ({
@@ -91,7 +89,6 @@ function PlaylistAddMusicModal({
         return null;
     }
 
-    // youtubeId 추출 (useYoutubeState 내부에도 있지만, 여기서 다시 사용 가능)
     const embedId = extractYoutubeVideoId(youtubeUrl);
 
     return (
