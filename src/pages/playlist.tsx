@@ -129,7 +129,7 @@ const Playlist = () => {
                     <ImageViewer src={thumbnailUrl} />
                 )}
                 <div className="flex flex-row items-end justify-center w-full my-3">
-                    <PlaylistDescription title={videoList[currentIndex].title} description={videoList[currentIndex].authorName} />
+                    <PlaylistDescription title={videoList[currentIndex]?.title ?? "영상을 추가해주세요"} description={videoList[currentIndex].authorName ?? "영상이 없습니다"} />
                     <button onClick={handleNextVideo}>
                         <PlayNext />
                     </button>
