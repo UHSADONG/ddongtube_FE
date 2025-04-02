@@ -19,7 +19,7 @@ export const useAuthCheck = () => {
             navigate(url, { replace: true });
         },
         authCheck: storage ? true : false,
-        playlistCode : storage?.playlistCode!,
+        playlistCode : storage?.playlistCode ?? null,
         accessToken : storage?.accessToken,
     }
 }   

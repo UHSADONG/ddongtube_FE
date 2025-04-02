@@ -23,6 +23,10 @@ import * as Sentry from '@sentry/react';
 const Playlist = () => {
     const { navigate, playlistCode, accessToken } = useAuthCheck();
 
+    if (!playlistCode) {
+        return null;
+    }
+
     const { data: playListMeta } = useSuspenseQuery({
         queryKey: ["playlistMeta", playlistCode],
         queryFn: () => getPlaylistMeta(playlistCode),
