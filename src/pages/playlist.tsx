@@ -131,13 +131,11 @@ const Playlist = () => {
             });
 
             eventSourceRef.current.addEventListener("connect", () => {
-                console.log("SSE connection established");
                 setIsLive(true);
                 reconnectAttemptRef.current = 0;
             });
 
             eventSourceRef.current.addEventListener("video", (message: MessageEvent) => {
-                console.log("video event", message);
                 queryClient.invalidateQueries({
                     queryKey: ["playlist", playlistCode],
                 });
@@ -147,7 +145,6 @@ const Playlist = () => {
             });
 
             eventSourceRef.current.addEventListener("playing", (message: MessageEvent) => {
-                console.log("playing event", message);
                 const data = JSON.parse(message.data);
                 if (data?.code) {
                     const videoCode = data.code;
@@ -159,7 +156,6 @@ const Playlist = () => {
             });
 
             eventSourceRef.current.onerror = function (error) {
-                console.error("SSE error or timeout:", error);
                 eventSourceRef.current?.close();
                 setIsLive(false);
                 Sentry.withScope((scope) => {
@@ -174,10 +170,6 @@ const Playlist = () => {
                 if (reconnectAttemptRef.current < maxReconnectAttempts) {
                     reconnectAttemptRef.current++;
                     const backoffTime = Math.min(1000 * Math.pow(2, reconnectAttemptRef.current - 1), 16000);
-                    console.log(
-                        `SSE connection closed. Reconnecting in ${backoffTime / 1000
-                        }s... (Attempt ${reconnectAttemptRef.current}/${maxReconnectAttempts})`
-                    );
 
                     if (reconnectTimeoutRef.current) {
                         clearTimeout(reconnectTimeoutRef.current);
@@ -187,7 +179,8 @@ const Playlist = () => {
                         connect();
                     }, backoffTime);
                 } else {
-                    console.log("Maximum reconnection attempts reached. Giving up.");
+                    // SSE 포기
+                    throw new Error("SSE connection failed after multiple attempts");
                 }
             };
         };
