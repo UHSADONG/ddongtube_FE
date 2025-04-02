@@ -1,11 +1,11 @@
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import ImageViewer from "../components/common/imageViewer";
 import PlaylistDescription from "../components/common/playlistDescription";
 import { ResponsiveContainer } from "../container/responsiveContainer";
 import { useAuthCheck } from "../hooks/auth/useAuthCheck";
-import { getPlaylist, getPlaylistMeta } from "../api/playlist";
+import { getPlaylist, getPlaylistMeta, postPlaylistNowPlaying } from "../api/playlist";
 import Card from "../components/common/card";
 import FloatingButton from "../components/common/floatingButton";
 
@@ -21,10 +21,12 @@ import { postVideo } from "../api/video";
 import { extractYoutubeVideoId } from "../utils/youtube";
 import YoutubeEmbedPlayer from "../components/youtube/youtubeEmbedPlayer";
 import useYoutubeState from "../hooks/youtube/useYoutubeState";
+import { createSSEConnection } from "../api/fetch/sse";
+import { getSessionStorage } from "../utils/sessionStorage";
 
 const Playlist = () => {
 
-    const { navigate, playlistCode } = useAuthCheck();
+    const { navigate, playlistCode, accessToken } = useAuthCheck();
 
     if (!playlistCode) {
         return null;
@@ -62,9 +64,12 @@ const Playlist = () => {
         reason
     } = useYoutubeState();
 
-    const { mutateAsync: submitYoutubeUrl } = useDebouncedMutation(
+    const { mutateAsync: nextPlayPost } = useDebouncedMutation(
         {
-            mutationFn: ({ playlistCode, youtubeUrl, videoDescription }: { playlistCode: string; youtubeUrl: string, videoDescription: string }) => postVideo(playlistCode, { videoUrl: youtubeUrl, videoDescription: "" }),
+            mutationFn: ({ playlistCode, videoCode }: {
+                playlistCode: string,
+                videoCode: string
+            }) => postPlaylistNowPlaying(playlistCode, videoCode),
             onSuccess: (data) => {
                 console.log(data);
             },
@@ -96,13 +101,69 @@ const Playlist = () => {
 
     }
 
+    const { mutateAsync: submitYoutubeUrl } = useDebouncedMutation(
+        {
+            mutationFn: ({ playlistCode, youtubeUrl, videoDescription }: { playlistCode: string; youtubeUrl: string, videoDescription: string }) => postVideo(playlistCode, { videoUrl: youtubeUrl, videoDescription: videoDescription }),
+            onSuccess: (data) => {
+                console.log(data);
+            },
+            onError: (error) => {
+                console.error(error);
+            }
+        },
+        500,
+        true
+    )
+
     const [currentIndex, setCurrentIndex] = useState(0);
     const videoList = playList?.result?.videoList || [];
     const currentVideo = videoList[currentIndex];
     const currentVideoId = extractYoutubeVideoId(currentVideo?.url || "");
     const handleNextVideo = () => {
-        setCurrentIndex((prev) => (prev + 1) % videoList.length);
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % videoList.length);
+        const nextVideo = videoList[(currentIndex + 1) % videoList.length];
+        const nextVideoCode = nextVideo.code;
+        if (nextVideoCode) {
+            nextPlayPost({ playlistCode, videoCode: nextVideoCode }).then(
+                () => { setCurrentIndex((prevIndex) => (prevIndex + 1) % videoList.length); }
+            );
+        }
+        queryClient.invalidateQueries({
+            queryKey: ["playlist", playlistCode],
+        });
+        queryClient.invalidateQueries({
+            queryKey: ["playlistMeta", playlistCode],
+        });
     };
+
+    useEffect(() => {
+        if (!playlistCode || !accessToken) return;
+
+        const sse = createSSEConnection(
+            `/sse/${playlistCode}/connect`,
+            (data) => {
+                console.log("SSE message:", data);
+            },
+            (error) => {
+                console.error("SSE error:", error);
+            },
+            {
+                Authorization: `Bearer ${accessToken}`,
+            }
+        );
+
+        sse.addEventListener("videoAdded", (event) => {
+            const newVideo = JSON.parse(event.data);
+            console.log("New video added:", newVideo);
+            queryClient.invalidateQueries({
+                queryKey: ["playlist", playlistCode],
+            });
+        });
+
+        return () => {
+            sse.close();
+        };
+    }, [playlistCode, accessToken]);
 
 
     return (

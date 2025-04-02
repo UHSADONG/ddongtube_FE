@@ -31,6 +31,11 @@ export const postPlaylist = (body: PostPlaylistRequest): Promise<PostPlaylistRes
     return postFetch<PostPlaylistResponse, string>("/playlist", body).then(res => res ?? false)
 };
 
+
+export const postPlaylistNowPlaying = (playlistCode: string, videoCode : string): Promise<boolean | {}> => {
+    return postFetch<boolean, string>(`/playlist/${playlistCode}/now-playing`, String(videoCode)).then(res => res ?? false)
+}
+
 export const deletePlaylist = (playlistCode: string): Promise<boolean | {}> => {
     return deleteFetch(`/playlist/${playlistCode}`).then(res => res ?? false)
 }
