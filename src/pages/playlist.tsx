@@ -129,14 +129,14 @@ const Playlist = () => {
                     <ImageViewer src={thumbnailUrl} />
                 )}
                 <div className="flex flex-row items-end justify-center w-full my-3">
-                    <PlaylistDescription title={videoList[currentIndex]?.title ?? "영상을 추가해주세요"} description={videoList[currentIndex].authorName ?? "영상이 없습니다"} />
+                    <PlaylistDescription title={videoList[currentIndex]?.title ?? "영상을 추가해주세요"} description={videoList[currentIndex]?.authorName ?? "영상이 없습니다"} />
                     <button onClick={handleNextVideo}>
                         <PlayNext />
                     </button>
                 </div>
                 <Card>
                     <p className="text-text-medium-md font-medium text-font-enabled">
-                        {videoList[currentIndex].description === "" || !videoList[currentIndex].description ? "상세 설명이 없습니다." : videoList[currentIndex].description}
+                        {videoList[currentIndex]?.description === "" || !videoList[currentIndex]?.description ? "상세 설명이 없습니다." : videoList[currentIndex].description}
                     </p>
                 </Card>
             </section>
