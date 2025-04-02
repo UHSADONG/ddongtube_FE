@@ -1,5 +1,3 @@
-// src/pages/Playlist.tsx
-
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { EventSourcePolyfill, NativeEventSource } from "event-source-polyfill";
@@ -20,6 +18,7 @@ import { useDebouncedMutation } from "../hooks/react-query/useDebouncedMutation"
 import { extractYoutubeVideoId } from "../utils/youtube";
 import YoutubeEmbedPlayer from "../components/youtube/youtubeEmbedPlayer";
 import PlaylistAddMusicModal from "../components/modal/playlistAddModal";
+import * as Sentry from '@sentry/react';
 
 const Playlist = () => {
     const { navigate, playlistCode, accessToken } = useAuthCheck();
@@ -163,6 +162,14 @@ const Playlist = () => {
                 console.error("SSE error or timeout:", error);
                 eventSourceRef.current?.close();
                 setIsLive(false);
+                Sentry.withScope((scope) => {
+                    scope.setContext("SSE", {
+                        playlistCode,
+                    });
+                    scope.setTag("errorType", "SSE Error");
+                    scope.setTag("errorCode", "SSE000");
+                    Sentry.captureException(error);
+                });
 
                 if (reconnectAttemptRef.current < maxReconnectAttempts) {
                     reconnectAttemptRef.current++;
