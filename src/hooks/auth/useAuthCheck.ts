@@ -6,6 +6,7 @@ export const useAuthCheck = () => {
 
     const navigate = useNavigate();
     const storage = getSessionStorage();
+    
     useEffect(() => {
         if (!storage || !storage?.playlistCode) {
             removeSessionStorage();
@@ -18,7 +19,7 @@ export const useAuthCheck = () => {
             navigate(url, { replace: true });
         },
         authCheck: storage ? true : false,
-        playlistCode : storage?.playlistCode,
+        playlistCode : storage?.playlistCode!,
         accessToken : storage?.accessToken,
     }
 }   

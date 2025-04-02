@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import {
   checkYoutubeVideoExists,
   extractYoutubeVideoId,
@@ -11,6 +11,22 @@ type YoutubeValidationResult = {
   reason?: string
 }
 
+const useDebounce = (value: string, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
 const useYoutubeState = () => {
   const [youtubeUrl, setYoutubeUrl] = useState('')
   const [videoDescription, setVideoDescription] = useState('')
@@ -19,6 +35,8 @@ const useYoutubeState = () => {
     videoId: null,
     reason: '',
   })
+
+  const debouncedUrl = useDebounce(youtubeUrl, 500);
 
   const resetYoutubeUrl = useCallback(() => {
     setYoutubeUrl('')
@@ -56,7 +74,7 @@ const useYoutubeState = () => {
 
   useEffect(() => {
     const check = async () => {
-      const trimmed = youtubeUrl.trim();
+      const trimmed = debouncedUrl.trim();
 
       if (trimmed === '') {
         if (result.isValid || result.videoId || result.reason) {
@@ -67,14 +85,13 @@ const useYoutubeState = () => {
 
       const res = await validateYoutube(trimmed);
       if (res.isValid === result.isValid && res.videoId === result.videoId && res.reason === result.reason) {
-        console.log('here')
         return;
       }
       setResult(res);
     };
 
     check();
-  }, [youtubeUrl]);
+  }, [debouncedUrl, validateYoutube]);
 
   return {
     youtubeUrl,
