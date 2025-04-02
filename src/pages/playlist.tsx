@@ -8,6 +8,8 @@ import { useAuthCheck } from "../hooks/auth/useAuthCheck";
 import { getPlaylist, getPlaylistMeta, postPlaylistNowPlaying } from "../api/playlist";
 import Card from "../components/common/card";
 import FloatingButton from "../components/common/floatingButton";
+import { EventSourcePolyfill, NativeEventSource } from "event-source-polyfill";
+
 
 import IconHome from "../assets/playlist/ic_home.svg?react";
 import PlayNext from "../assets/playlist/ic_play_next.svg?react";
@@ -21,8 +23,7 @@ import { postVideo } from "../api/video";
 import { extractYoutubeVideoId } from "../utils/youtube";
 import YoutubeEmbedPlayer from "../components/youtube/youtubeEmbedPlayer";
 import useYoutubeState from "../hooks/youtube/useYoutubeState";
-import { createSSEConnection } from "../api/fetch/sse";
-import { EventSourcePolyfill, NativeEventSource } from "event-source-polyfill";
+
 
 const Playlist = () => {
 
@@ -138,11 +139,10 @@ const Playlist = () => {
     useEffect(() => {
         if (!playlistCode) return;
         let fullURL = `${import.meta.env.VITE_REACT_SERVER_BASE_URL}/sse/${playlistCode}/connect`;
-        const EventSourcePolyfill = (window as any).EventSourcePolyfill || EventSource;
-        const accessToken = sessionStorage.getItem("accessToken")
+        const EventSource = EventSourcePolyfill || NativeEventSource;
         if (!accessToken) { return }
         const connect = () => {
-            const eventSource = new EventSourcePolyfill(fullURL,
+            const eventSource = new EventSource(fullURL,
                 accessToken ?
                     {
                         headers: {
@@ -155,19 +155,17 @@ const Playlist = () => {
                 console.log("SSE connection opened");
             }
 
-            eventSource.onmessage = (event: MessageEvent) => {
-                try {
-                    const parsedData = JSON.parse(event.data);
-                    console.log("SSE message:", parsedData);
-                } catch (e) {
-                    console.warn("Failed to parse SSE message:", e);
-                }
-            };
+            eventSource.onmessage = function (event: MessageEvent) {
+                const parsedData = JSON.parse(event.data);
+                console.log("SSE message:", parsedData);
+            }
 
-            eventSource.onerror = (e: Error) => {
-                console.error("SSE error:", e);
+            eventSource.onerror = function (event: Event) {
+                console.error("SSE error:", event);
                 eventSource.close();
-            };
+                console.log(eventSource.readyState === 2 ? "CLOSED" : "CONNECTING");
+                console.log("SSE connection closed");
+            }
 
             return () => {
                 eventSource.close();

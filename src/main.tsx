@@ -1,7 +1,6 @@
 import './sentry/instruments.ts'
 import { SENTRY_CONFIG } from './sentry/config.ts';
 
-import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import './index.css'
@@ -12,10 +11,11 @@ const container = document.getElementById('root')!;
 
 const root = createRoot(container, SENTRY_CONFIG);
 
+
+// SSE Test 때문에 Strict Mode 제거
 root.render(
-  <StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </StrictMode>
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
+
 );
