@@ -92,7 +92,7 @@ function PlaylistAddMusicModal({
     const embedId = extractYoutubeVideoId(youtubeUrl);
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-[#1F1F20]/80" >
+        <div className="fixed inset-0 flex items-center justify-center bg-[#1F1F20]/90" >
             <div className="w-full max-w-[400px] mx-6 flex flex-col bg-fill rounded-400 overflow-hidden items-center justify-center px-4 pb-7 pt-5 rounded-[20px]">
                 <div className="relative w-full max-w-md rounded-md">
                     <nav className="relative flex items-center justify-center w-full">
