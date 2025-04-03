@@ -2,7 +2,7 @@ import Button from "../components/common/button"
 import Input from "../components/common/input"
 import { useStartForm } from "../hooks/form/useStartForm";
 import { ResponsiveContainer } from "../container/responsiveContainer";
-import { removeSessionStorage, setSessionStorage } from "../utils/sessionStorage";
+import { addSessionStorage, removeSessionStorage, setSessionStorage } from "../utils/sessionStorage";
 import { useNavigate, useParams } from "react-router";
 import ImageViewer from "../components/common/imageViewer";
 import PlaylistDescription from "../components/common/playlistDescription";
@@ -39,17 +39,12 @@ const StartGuest = () => {
     });
 
     const { title, thumbnailUrl, description } = data.result;
-
-
     const { form, errors, onChange } = useStartForm();
 
     const { mutateAsync, } = useDebouncedMutation({
         mutationFn: ({ nickname, password }: { nickname: string; password: string }) => postUser(playlistCode!, { name: nickname, password }),
         onSuccess: () => {
-            console.log("성공");
-        },
-        onError: () => {
-            console.log("실패");
+            addSessionStorage("nickname", form.nickname);
         }
     }, 500, true)
 

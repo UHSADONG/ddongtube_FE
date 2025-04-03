@@ -55,7 +55,10 @@ const Home = () => {
                             </div>
                     }
                 </div>
-                <FloatingButton text="플레이리스트 보러가기" onClick={() => { navigate('/playlist') }} />
+                <FloatingButton
+                    playlistCode={playlistCode}
+                    playlistMeta={data.result}
+                    text="플레이리스트 보러가기" onMusicButtonClick={() => { navigate('/playlist') }} />
             </div>
         </div >
     )

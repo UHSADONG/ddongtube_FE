@@ -217,6 +217,13 @@ const Playlist = () => {
 
     return (
         <ResponsiveContainer style={{ overflowY: "auto" }}>
+            <meta name="og:title" content={playListMeta.result.title} />
+            <meta name="og:description" content={playListMeta.result.description} />
+            <meta name="og:image" content={thumbnailUrl} />
+            <meta name="og:url" content={`${import.meta.env.VITE_REACT_SHARE_URL}/${playlistCode}`} />
+            <meta name="og:type" content="website" />
+            <meta name="og:site_name" content="딥플리" />
+            <meta name="og:locale" content="ko_KR" />
             <nav className="relative flex items-center justify-center mt-[10%] py-3 w-full">
                 <div className="absolute left-0" onClick={() => navigate("/home")}>
                     <IconHome />
@@ -296,7 +303,11 @@ const Playlist = () => {
                 </div>
                 <footer className="flex flex-row items-center justify-between w-full mb-[30%]"></footer>
             </div>
-            <FloatingButton text="영상 추가하기" onClick={openAddMusicModal} />
+            <FloatingButton
+                playlistCode={playlistCode}
+                playlistMeta={playListMeta.result}
+                text="영상 추가하기"
+                onMusicButtonClick={openAddMusicModal} />
             <PlaylistAddMusicModal
                 isOpen={isAddMusicModalOpen}
                 onClose={closeAddMusicModal}

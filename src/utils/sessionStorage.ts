@@ -10,6 +10,11 @@ export const setSessionStorage = (
     window.sessionStorage.setItem("accessToken", accessToken);
 }
 
+export const addSessionStorage = (key : string, value : string) => {
+    window.sessionStorage.setItem(key, value);
+}
+
+
 export const getSessionStorage = () : SessionStorageObject | null => {
     const playlistCode = window.sessionStorage.getItem("playlistCode");
     const accessToken = window.sessionStorage.getItem("accessToken");
@@ -23,6 +28,5 @@ export const getSessionStorage = () : SessionStorageObject | null => {
 }
 
 export const removeSessionStorage = () => {
-    window.sessionStorage.removeItem("playlistCode");
-    window.sessionStorage.removeItem("accessToken");
+    window.sessionStorage.clear();
 }
