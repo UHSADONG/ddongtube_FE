@@ -28,11 +28,11 @@ const StartGuest = () => {
         })
     }
 
-    const { data } = useSuspenseQuery({
+    const { data, isError, error } = useSuspenseQuery({
         queryKey: ["playlistMetaPublic", playlistCode],
         queryFn: async () => {
             const result = await removeSessionStorageAsync().then(() => getPlaylistMetaPublic(playlistCode!));
-            return result;
+            return result ?? null;
         },
         retry: 1,
         staleTime: 0
@@ -43,8 +43,11 @@ const StartGuest = () => {
 
     const { mutateAsync, } = useDebouncedMutation({
         mutationFn: ({ nickname, password }: { nickname: string; password: string }) => postUser(playlistCode!, { name: nickname, password }),
-        onSuccess: () => {
+        onSuccess: (data) => {
             addSessionStorage("nickname", form.nickname);
+            if ("result" in data) {
+                addSessionStorage("isAdmin", String(data.result.isAdmin));
+            }
         }
     }, 500, true)
 

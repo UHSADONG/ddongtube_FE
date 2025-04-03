@@ -6,6 +6,7 @@ type FloatingButtonProps = {
     playlistCode: string;
     playlistMeta: PlaylistMeta;
     text: string;
+    openToast: (message: string) => void;
     onMusicButtonClick?: () => void;
     disabled?: boolean;
 };
@@ -13,31 +14,20 @@ type FloatingButtonProps = {
 
 const FloatingButton = ({
     playlistCode,
-    playlistMeta,
     text,
+    openToast,
     onMusicButtonClick,
     disabled = false }: FloatingButtonProps) => {
 
     const onShareClick = () => {
-        if (navigator.share) {
-            navigator.share({
-                title: `${playlistMeta.title} (광고 아님, 같이 놀고 싶은거임)`,
-                text: `딥플리에서 ${window.sessionStorage.getItem("nickname") ?? playlistMeta.owner}님이 당신을 초대합니다!`,
-                url: `${import.meta.env.VITE_REACT_SHARE_URL}/${playlistCode}`,
+        navigator.clipboard.writeText(`https://www.deeeply.site/start/${playlistCode}`)
+            .then(() => {
+                openToast('플리 링크가 복사되었습니다.')
             })
-                .then(() => console.log('Shared successfully'))
-                .catch((error) => console.error('Error sharing:', error));
-        } else {
-            navigator.clipboard.writeText(`https://www.deeeply.site/start/${playlistCode}`)
-                .then(() => {
-                    alert('공유할 수 없어, 링크가 복사되었습니다!');
-                })
-                .catch((error) => {
-                    console.error('Error copying to clipboard:', error);
-                    alert('링크 복사에 실패했습니다.');
-                });
-
-        }
+            .catch((error) => {
+                console.error('Error copying to clipboard:', error);
+                alert('링크 복사에 실패했습니다.');
+            });
     }
 
     return (

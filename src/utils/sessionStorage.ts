@@ -1,6 +1,8 @@
 type SessionStorageObject = {   
     playlistCode: string;
     accessToken: string;
+    isAdmin: boolean;
+    nickname: string;
 };
 
 export const setSessionStorage = (
@@ -18,12 +20,16 @@ export const addSessionStorage = (key : string, value : string) => {
 export const getSessionStorage = () : SessionStorageObject | null => {
     const playlistCode = window.sessionStorage.getItem("playlistCode");
     const accessToken = window.sessionStorage.getItem("accessToken");
+    const isAdmin = window.sessionStorage.getItem("isAdmin");
+    const nickname = window.sessionStorage.getItem("nickname");
 
-    if (!playlistCode || !accessToken) return null;
+    if (!playlistCode || !accessToken || !isAdmin || !nickname) return null;
 
     return {
         playlistCode,
         accessToken,
+        isAdmin: isAdmin === "true",
+        nickname
     };
 }
 

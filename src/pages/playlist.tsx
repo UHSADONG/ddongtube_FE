@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { EventSourcePolyfill, NativeEventSource } from "event-source-polyfill";
 import { useAuthCheck } from "../hooks/auth/useAuthCheck";
@@ -13,15 +13,20 @@ import FloatingButton from "../components/common/floatingButton";
 import IconHome from "../assets/playlist/ic_home.svg?react";
 import PlayNext from "../assets/playlist/ic_play_next.svg?react";
 import IconHamburgerDisabled from "../assets/playlist/ic_hamburger_disabled.svg?react";
+import IconDelete from '../assets/playlist/ic_delete.svg?react';
 
 import { useDebouncedMutation } from "../hooks/react-query/useDebouncedMutation";
 import { extractYoutubeVideoId } from "../utils/youtube";
 import YoutubeEmbedPlayer from "../components/youtube/youtubeEmbedPlayer";
 import PlaylistAddMusicModal from "../components/modal/playlistAddModal";
 import * as Sentry from '@sentry/react';
+import { useToast } from "../hooks/useToast";
+import { deleteVideo } from '../api/video';
 
 const Playlist = () => {
-    const { navigate, playlistCode, accessToken } = useAuthCheck();
+
+    const queryClient = useQueryClient();
+    const { navigate, playlistCode, accessToken, isAdmin, nickname } = useAuthCheck();
 
     if (!playlistCode) {
         return null;
@@ -32,26 +37,43 @@ const Playlist = () => {
         queryFn: () => getPlaylistMeta(playlistCode),
     });
 
-    const queryClient = useQueryClient();
+
     const { data: playList } = useSuspenseQuery({
         queryKey: ["playlist", playlistCode],
         queryFn: () => getPlaylist(playlistCode),
         retry: 1,
         refetchOnWindowFocus: true,
         staleTime: 0,
+        select: (data) => {
+            const videoList = data?.result?.videoList?.slice().sort((v1, v2) => v1.priority - v2.priority);
+            return {
+                ...data,
+                result: {
+                    ...data.result,
+                    videoList: videoList ?? []
+                },
+            };
+        }
     });
 
     const { thumbnailUrl } = playListMeta.result;
 
+    const { result } = playList;
+    const { videoList } = result;
+
     const [isLive, setIsLive] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(playList?.result?.videoList?.findIndex((video: Video) => video.code === playList.result.nowPlayingVideoCode) ?? 0);
+    const [currentListener, setCurrentListener] = useState(-1);
 
-    const videoList = useMemo(() => {
-        return playList?.result?.videoList?.sort((v1, v2) => v1.priority - v2.priority) || [];
-    }, [playList?.result?.videoList]);
-
-    const currentVideo = videoList[currentIndex];
-    const currentVideoId = extractYoutubeVideoId(currentVideo?.url || "");
+    useEffect(() => {
+        console.log(currentIndex)
+        // if (videoList.length > 0) {
+        //     const videoIndex = videoList.findIndex((video: Video) => video.code === playList.result.nowPlayingVideoCode);
+        //     if (videoIndex !== -1) {
+        //         setCurrentIndex(videoIndex);
+        //     }
+        // }
+    }, [currentIndex])
 
     const { mutateAsync: nextPlayPost } = useDebouncedMutation(
         {
@@ -75,8 +97,34 @@ const Playlist = () => {
         true
     );
 
+    const {
+        mutateAsync: _deleteVideo,
+        isPending: isDeletePending,
+    } = useDebouncedMutation(
+        {
+            mutationFn: ({
+                playlistCode,
+                videoCode,
+            }: {
+                playlistCode: string;
+                videoCode: string;
+            }) => deleteVideo(playlistCode, videoCode),
+            onSuccess: (data) => {
+                if (!isLive) {
+                    setCurrentIndex((prevIndex) => (prevIndex + 1) % videoList.length);
+                }
+            },
+            onError: (error) => {
+                console.error(error);
+            },
+        },
+        500,
+        true
+    )
+
     const handleNextVideo = useCallback(
         (touchedIndex: number = -1) => {
+
             const nextVideo =
                 touchedIndex === -1
                     ? videoList[(currentIndex + 1) % videoList.length]
@@ -86,6 +134,7 @@ const Playlist = () => {
             const nextVideoCode = nextVideo.code;
             if (nextVideoCode) {
                 nextPlayPost({ playlistCode, videoCode: nextVideoCode }).then(() => {
+                    // openSuccessToast("영상이 변경이 요청되었습니다.");
                     if (!isLive) {
                         if (touchedIndex === -1) {
                             setCurrentIndex((prevIndex) => (prevIndex + 1) % videoList.length);
@@ -98,10 +147,19 @@ const Playlist = () => {
         },
         [currentIndex, videoList, playlistCode, isLive, nextPlayPost]
     );
+    useEffect(() => {
+        console.log(videoList)
+    }, [videoList])
+
+    const videoListRef = useRef(videoList);
+    useEffect(() => {
+        videoListRef.current = videoList;
+    }, [videoList]);
 
     const eventSourceRef = useRef<EventSource | null>(null);
     const reconnectAttemptRef = useRef(0);
     const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const sixteenCountRef = useRef(0);
 
     useEffect(() => {
         if (!playlistCode || !accessToken) return;
@@ -129,24 +187,60 @@ const Playlist = () => {
             });
 
             eventSourceRef.current.addEventListener("video", (message: MessageEvent) => {
-                queryClient.invalidateQueries({
-                    queryKey: ["playlist", playlistCode],
-                });
-                queryClient.invalidateQueries({
-                    queryKey: ["playlistMeta", playlistCode],
-                });
+                const data = JSON.parse(message.data);
+
+                if (data?.status === "DELETE") {
+                    queryClient.setQueryData(["playlist", playlistCode], (oldData: any) => {
+                        const updatedVideoList = oldData.result.videoList.filter((video: Video) => video.code !== data.videoCode);
+                        return {
+                            ...oldData,
+                            result: {
+                                ...oldData.result,
+                                videoList: [...updatedVideoList],
+                            },
+                        };
+                    }
+                    );
+
+                    openSuccessToast("영상이 삭제되었습니다.");
+                }
+                if (data.status === "ADD") {
+                    queryClient.setQueryData(["playlist", playlistCode], (oldData: any) => {
+                        const updatedVideoList = [...oldData.result.videoList, data.video];
+                        return {
+                            ...oldData,
+                            result: {
+                                ...oldData.result,
+                                videoList: updatedVideoList,
+                            },
+                        };
+                    });
+                    openSuccessToast("영상이 추가되었습니다.");
+                }
             });
 
             eventSourceRef.current.addEventListener("playing", (message: MessageEvent) => {
                 const data = JSON.parse(message.data);
                 if (data?.code) {
+                    openSuccessToast("영상이 변경되었습니다.");
                     const videoCode = data.code;
-                    const videoIndex = videoList.findIndex((video: Video) => video.code === videoCode);
+                    console.log(videoList);
+                    console.log("videoCode", videoCode);
+                    const videoIndex = videoListRef.current.findIndex((video: Video) => video.code === videoCode);
+                    console.log("videoIndex", videoIndex);
                     if (videoIndex !== -1) {
                         setCurrentIndex(videoIndex);
                     }
                 }
+
             });
+
+            eventSourceRef.current.addEventListener("ping", (message) => {
+                const data = JSON.parse(message.data);
+                if (data?.clientCount) {
+                    setCurrentListener(data.clientCount);
+                }
+            })
 
             eventSourceRef.current.onerror = function (error) {
                 eventSourceRef.current?.close();
@@ -160,21 +254,32 @@ const Playlist = () => {
                     Sentry.captureException(error);
                 });
 
-                if (reconnectAttemptRef.current < maxReconnectAttempts) {
-                    reconnectAttemptRef.current++;
-                    const backoffTime = Math.min(1000 * Math.pow(2, reconnectAttemptRef.current - 1), 16000);
+                // 증가하는 재연결 시도 횟수에 따라 backoff 시간(초)을 계산합니다.
+                reconnectAttemptRef.current++;
+                // 계산된 시간: 2^n (n번 시도), 단 최대 16초까지
+                const calculatedTimeSec = Math.pow(2, reconnectAttemptRef.current);
+                const backoffTimeSec = Math.min(calculatedTimeSec, 16);
+                const backoffTimeMs = backoffTimeSec * 1000;
 
-                    if (reconnectTimeoutRef.current) {
-                        clearTimeout(reconnectTimeoutRef.current);
-                    }
-
-                    reconnectTimeoutRef.current = setTimeout(() => {
-                        connect();
-                    }, backoffTime);
+                // 만약 backoff 시간이 16초라면 카운트를 증가, 아니면 초기화
+                if (backoffTimeSec === 16) {
+                    sixteenCountRef.current++;
                 } else {
-                    // SSE 포기
+                    sixteenCountRef.current = 0;
+                }
+
+                // 16초 backoff가 10번 연속이면 연결 포기
+                if (sixteenCountRef.current >= 10) {
                     throw new Error("SSE connection failed after multiple attempts");
                 }
+
+                if (reconnectTimeoutRef.current) {
+                    clearTimeout(reconnectTimeoutRef.current);
+                }
+
+                reconnectTimeoutRef.current = setTimeout(() => {
+                    connect();
+                }, backoffTimeMs);
             };
         };
 
@@ -190,7 +295,6 @@ const Playlist = () => {
                 reconnectTimeoutRef.current = null;
             }
             setIsLive(false);
-            console.log("SSE connection closed due to component unmount");
         };
     }, [playlistCode]);
 
@@ -204,22 +308,50 @@ const Playlist = () => {
         setIsAddMusicModalOpen(false);
     }, []);
 
+    const {
+        openSuccessToast,
+        ToastPortal, } = useToast();
+
+    const [isDeleteMode, setIsDeleteMode] = useState(false);
+    const toggleDeleteMode = useCallback(() => {
+        setIsDeleteMode((prev) => !prev);
+    }, []);
+
+    const hanldeVideoDelete = (e: Event, item: Video) => {
+        e.stopPropagation();
+        if (item.code === videoList[currentIndex].code) {
+            openSuccessToast("현재 재생 중인 영상은 삭제할 수 없습니다.");
+            return;
+        }
+        if (isAdmin || item.user.name === nickname) {
+            if (confirm("정말 삭제하시겠습니까?")) {
+                const videoCode = item.code;
+                if (videoCode) {
+                    _deleteVideo({ playlistCode, videoCode }).then(() => {
+
+                    });
+                }
+            }
+        } else {
+            openSuccessToast("본인 영상만 삭제할 수 있습니다.");
+        }
+    }
+
     return (
         <ResponsiveContainer style={{ overflowY: "auto" }}>
-
             <nav className="relative flex items-center justify-center mt-[10%] py-3 w-full">
                 <div className="absolute left-0" onClick={() => navigate("/home")}>
                     <IconHome />
                 </div>
-                <h1 className={`text-text-medium-sm font-semibold text-center transition-colors duration-300 ${isLive ? "text-main" : "text-font-disabled"}`}>
-                    {isLive ? "🟢 함께 보고 있어요" : "혼자 보고 있어요 😶"}
+                <h1 className={`text-text-medium-sm font-semibold text-center transition-colors duration-300 text-font-disabled`}>
+                    {isLive ? currentListener !== -1 ? `${currentListener}명이 같이 듣고 있어요!` : "같이 듣고 있어요!" : "실시간이 아닙니다."}
                 </h1>
             </nav>
 
             <section key={`${playlistCode}-image`} className="flex flex-col items-start justify-center w-full mt-3 mb-8">
-                {currentVideoId ? (
+                {extractYoutubeVideoId(videoList[currentIndex]?.url || "") ? (
                     <YoutubeEmbedPlayer
-                        videoId={currentVideoId}
+                        videoId={extractYoutubeVideoId(videoList[currentIndex]?.url || "") ?? ""}
                         onPause={() => console.log("⏸사용자 일시정지")}
                         onEnded={() => handleNextVideo()}
                     />
@@ -245,31 +377,31 @@ const Playlist = () => {
             </section>
 
             <div className="flex flex-col items-start justify-center w-full">
-                <nav className="flex flex-row items-start justify-center w-full">
-                    <label className="w-full text-head-medium-bold font-bold text-font-enabled text-left ml-1 mt-5 mb-3">
+                <nav className="flex flex-row items-center justify-between w-full h-full">
+                    <label className="text-head-medium-bold font-bold text-font-enabled text-left ml-1 mt-5 mb-3">
                         재생목록
                     </label>
+                    <button className="text-text-medium-sm text-font-disabled font-medium pt-5 pb-3 underline underline-offset-2 pl-3 pr-3"
+                        onClick={toggleDeleteMode}>편집</button>
                 </nav>
                 <div className="flex flex-col items-start justify-center w-full gap-2">
                     {videoList.length > 0 ? (
                         videoList.map((item, index) => (
                             <Card
-                                key={item.code}
-                                className={`playlist-card transition-all duration-300 border-[1px] ${index === currentIndex ? "border-main" : "border-stroke-2"
+                                className={`playlist-card transition-all duration-300 border-[1px] ${videoList[currentIndex].code === item.code ? "border-main" : "border-stroke-2"
                                     }`}
-                                onClick={() => handleNextVideo(index)}
+                                onClick={isDeleteMode ? () => openSuccessToast("편집 중에는 영상을 변경할 수 없습니다.") : () => handleNextVideo(index)}
                             >
                                 <section className="flex flex-row items-center justify-between w-full">
                                     <article className="flex flex-col items-start justify-center w-full text-left flex-1">
                                         <div className="flex flex-row items-center justify-start w-full gap-2">
                                             <p
-                                                className={`${index === currentIndex ? "text-font-enabled" : "text-font-disabled"
+                                                className={`${videoList[currentIndex].code === item.code ? "text-font-enabled" : "text-font-disabled"
                                                     } text-text-medium-md font-medium`}
                                             >
                                                 {item.user.name}
                                             </p>
                                             {
-                                                //현재 재생중
                                                 videoList[currentIndex].code === item.code && (
                                                     <p
                                                         className={`text-text-medium-md font-semibold text-main animate-pulse`}
@@ -283,13 +415,35 @@ const Playlist = () => {
                                         </div>
 
                                         <h1
-                                            className={`${index === currentIndex ? "text-font-enabled" : "text-font-disabled"
+                                            className={`${videoList[currentIndex].code === item.code ? "text-font-enabled" : "text-font-disabled"
                                                 } text-text-large-bold font-bold`}
                                         >
                                             {item.title}
                                         </h1>
                                     </article>
-                                    <IconHamburgerDisabled />
+                                    <div className="relative w-6 h-6 overflow-hidden">
+                                        <IconDelete
+                                            className={`
+                                                    absolute top-0 left-0
+                                                    transition-all duration-300
+                                                    ${isDeleteMode
+                                                    ? 'translate-x-0 opacity-100'
+                                                    : 'translate-x-full opacity-0'
+                                                }
+                                            `}
+                                            onClick={(e) => hanldeVideoDelete(e, item)}
+                                        />
+                                        <IconHamburgerDisabled
+                                            className={`
+                                                    absolute top-0 left-0
+                                                    transition-all duration-300
+                                                    ${isDeleteMode
+                                                    ? 'translate-x-full opacity-0'
+                                                    : 'translate-x-0 opacity-100'
+                                                }
+                                            `}
+                                        />
+                                    </div>
                                 </section>
                             </Card>
                         ))
@@ -299,19 +453,21 @@ const Playlist = () => {
                         </p>
                     )}
                 </div>
-                <footer className="flex flex-row items-center justify-between w-full mb-[30%]"></footer>
+                <footer className="flex flex-row items-center justify-between w-full mb-[30%] max-sm:mb-[50%]"></footer>
             </div>
             <FloatingButton
                 playlistCode={playlistCode}
                 playlistMeta={playListMeta.result}
+                openToast={openSuccessToast}
                 text="영상 추가하기"
                 onMusicButtonClick={openAddMusicModal} />
             <PlaylistAddMusicModal
+                openToast={() => { }}
                 isOpen={isAddMusicModalOpen}
                 onClose={closeAddMusicModal}
                 playlistCode={playlistCode}
             />
-            {/* <Toast /> */}
+            {ToastPortal}
         </ResponsiveContainer >
     );
 };
