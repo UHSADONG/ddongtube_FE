@@ -65,16 +65,6 @@ const Playlist = () => {
     const [currentIndex, setCurrentIndex] = useState(playList?.result?.videoList?.findIndex((video: Video) => video.code === playList.result.nowPlayingVideoCode) ?? 0);
     const [currentListener, setCurrentListener] = useState(-1);
 
-    useEffect(() => {
-        console.log(currentIndex)
-        // if (videoList.length > 0) {
-        //     const videoIndex = videoList.findIndex((video: Video) => video.code === playList.result.nowPlayingVideoCode);
-        //     if (videoIndex !== -1) {
-        //         setCurrentIndex(videoIndex);
-        //     }
-        // }
-    }, [currentIndex])
-
     const { mutateAsync: nextPlayPost } = useDebouncedMutation(
         {
             mutationFn: ({
@@ -147,9 +137,6 @@ const Playlist = () => {
         },
         [currentIndex, videoList, playlistCode, isLive, nextPlayPost]
     );
-    useEffect(() => {
-        console.log(videoList)
-    }, [videoList])
 
     const videoListRef = useRef(videoList);
     useEffect(() => {
@@ -224,10 +211,7 @@ const Playlist = () => {
                 if (data?.code) {
                     openSuccessToast("영상이 변경되었습니다.");
                     const videoCode = data.code;
-                    console.log(videoList);
-                    console.log("videoCode", videoCode);
                     const videoIndex = videoListRef.current.findIndex((video: Video) => video.code === videoCode);
-                    console.log("videoIndex", videoIndex);
                     if (videoIndex !== -1) {
                         setCurrentIndex(videoIndex);
                     }
