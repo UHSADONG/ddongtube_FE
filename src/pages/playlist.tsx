@@ -261,12 +261,27 @@ const Playlist = () => {
                             >
                                 <section className="flex flex-row items-center justify-between w-full">
                                     <article className="flex flex-col items-start justify-center w-full text-left flex-1">
-                                        <p
-                                            className={`${index === currentIndex ? "text-font-enabled" : "text-font-disabled"
-                                                } text-text-medium-md font-medium`}
-                                        >
-                                            {item.user.name}
-                                        </p>
+                                        <div className="flex flex-row items-center justify-start w-full gap-2">
+                                            <p
+                                                className={`${index === currentIndex ? "text-font-enabled" : "text-font-disabled"
+                                                    } text-text-medium-md font-medium`}
+                                            >
+                                                {item.user.name}
+                                            </p>
+                                            {
+                                                //현재 재생중
+                                                videoList[currentIndex].code === item.code && (
+                                                    <p
+                                                        className={`text-text-medium-md font-semibold text-main animate-pulse`}
+                                                    >
+                                                        현재 재생 중
+                                                    </p>
+                                                )
+
+                                            }
+
+                                        </div>
+
                                         <h1
                                             className={`${index === currentIndex ? "text-font-enabled" : "text-font-disabled"
                                                 } text-text-large-bold font-bold`}
