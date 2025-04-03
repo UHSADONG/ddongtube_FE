@@ -99,16 +99,16 @@ const Playlist = () => {
         [currentIndex, videoList, playlistCode, isLive, nextPlayPost]
     );
 
-    useEffect(() => {
-        const card = document.querySelectorAll(".playlist-card")[currentIndex];
-        if (card) {
-            card.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-                inline: "center",
-            });
-        }
-    }, [currentIndex]);
+    // useEffect(() => {
+    //     const card = document.querySelectorAll(".playlist-card")[currentIndex];
+    //     if (card) {
+    //         card.scrollIntoView({
+    //             behavior: "smooth",
+    //             block: "center",
+    //             inline: "center",
+    //         });
+    //     }
+    // }, [currentIndex]);
 
     const eventSourceRef = useRef<EventSource | null>(null);
     const reconnectAttemptRef = useRef(0);
