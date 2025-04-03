@@ -217,13 +217,6 @@ const Playlist = () => {
 
     return (
         <ResponsiveContainer style={{ overflowY: "auto" }}>
-            <meta name="og:title" content={playListMeta.result.title} />
-            <meta name="og:description" content={playListMeta.result.description} />
-            <meta name="og:image" content={thumbnailUrl} />
-            <meta name="og:url" content={`${import.meta.env.VITE_REACT_SHARE_URL}/${playlistCode}`} />
-            <meta name="og:type" content="website" />
-            <meta name="og:site_name" content="딥플리" />
-            <meta name="og:locale" content="ko_KR" />
             <nav className="relative flex items-center justify-center mt-[10%] py-3 w-full">
                 <div className="absolute left-0" onClick={() => navigate("/home")}>
                     <IconHome />

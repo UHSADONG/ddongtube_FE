@@ -70,6 +70,13 @@ const StartGuest = () => {
 
     return (
         <ResponsiveContainer>
+            <meta name="og:title" content={title} />
+            <meta name="og:description" content={description} />
+            <meta name="og:image" content={thumbnailUrl} />
+            <meta name="og:url" content={`${import.meta.env.VITE_REACT_SHARE_URL}/${playlistCode}`} />
+            <meta name="og:type" content="website" />
+            <meta name="og:site_name" content="딥플리" />
+            <meta name="og:locale" content="ko_KR" />
             <section key={`${playlistCode}-image`} className="flex flex-col items-start justify-center mt-[10%] w-full">
                 <ImageViewer src={thumbnailUrl} />
                 <PlaylistDescription title={title} description={description} isCenter={true} />
