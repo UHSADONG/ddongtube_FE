@@ -1,12 +1,10 @@
-// useToast.ts
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import Toast, { ToastStage } from '../components/common/toast';
 
-/** 하나의 Toast를 나타내는 데이터 구조 */
 export interface IToast {
     id: number | string;
     message: string;
-    stage: ToastStage; // 'loading' | 'success'
+    stage: ToastStage;
 
 }
 
@@ -71,14 +69,10 @@ export function useToast() {
         []
     );
 
-    /**
-     * Fade-Out이 끝난 토스트를 배열에서 제거 (Toast 컴포넌트 -> onClose -> removeToast)
-     */
     const removeToast = useCallback((id: number | string) => {
         setToasts((prev) => prev.filter((t) => t.id !== id));
     }, []);
 
-    // 여러 Toast를 렌더
     const ToastPortal = (
         <>
             {toasts.map((t) => (

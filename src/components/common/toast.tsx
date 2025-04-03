@@ -8,16 +8,14 @@ type ToastProps = {
     id: number | string;
     message: string;
     stage: ToastStage;
-    /** 토스트 전체 Fade-Out 후 DOM 제거 요청 */
     onClose: (id: number | string) => void;
 };
 
 const Toast = ({ id, message, stage, onClose }: ToastProps) => {
-    // 토스트 전체가 보이는 여부 (Fade In/Out)
     const [visible, setVisible] = useState(false);
 
     // 아이콘 전환용 state
-    const [iconType, setIconType] = useState<ToastStage>(stage); // 현재 아이콘('loading'|'success')
+    const [iconType, setIconType] = useState<ToastStage>(stage);
     const [iconScale, setIconScale] = useState(1); // 아이콘 축소/확대(1=정상, 0=축소)
 
     // 1) 마운트 시점에 살짝 지연 후 Toast 전체 Fade-In
@@ -80,15 +78,13 @@ const Toast = ({ id, message, stage, onClose }: ToastProps) => {
             onTransitionEnd={handleToastTransitionEnd}
             className={`
         fixed top-0 left-1/2 transform -translate-x-1/2
-        w-full max-w-md m-4 p-4
+        max-w-[400px] w-full p-4 mt-4
         rounded-lg shadow-lg text-white bg-[#0F0F0F]/90
         backdrop-blur-xs transition-all duration-300
         ${visible ? '-translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}
       `}
         >
-            {/* 아이콘 + 텍스트 */}
             <div className="flex flex-row items-center">
-                {/* 아이콘 컨테이너 (scale 애니메이션) */}
                 <div
                     onTransitionEnd={handleIconTransitionEnd}
                     className="mr-2 transition-transform duration-200 origin-center"

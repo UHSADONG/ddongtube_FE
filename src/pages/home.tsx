@@ -6,6 +6,7 @@ import FloatingButton from "../components/common/floatingButton";
 import ImageViewer from "../components/common/imageViewer";
 import PlaylistDescription from "../components/common/playlistDescription";
 import UserCardText from "../components/user/userCardText";
+import { useToast } from "../hooks/useToast";
 
 const Home = () => {
 
@@ -26,6 +27,11 @@ const Home = () => {
         owner,
         userList,
     } = data.result;
+
+
+    const {
+        openSuccessToast,
+        ToastPortal, } = useToast();
 
 
     return (
@@ -58,7 +64,9 @@ const Home = () => {
                 <FloatingButton
                     playlistCode={playlistCode}
                     playlistMeta={data.result}
+                    openToast={openSuccessToast}
                     text="플레이리스트 보러가기" onMusicButtonClick={() => { navigate('/playlist') }} />
+                {ToastPortal}
             </div>
         </div >
     )
