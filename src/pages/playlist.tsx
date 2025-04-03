@@ -203,7 +203,7 @@ const Playlist = () => {
             setIsLive(false);
             console.log("SSE connection closed due to component unmount");
         };
-    }, [playlistCode, accessToken, videoList, queryClient]);
+    }, [playlistCode]);
 
     const [isAddMusicModalOpen, setIsAddMusicModalOpen] = useState(false);
 
