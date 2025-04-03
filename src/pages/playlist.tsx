@@ -19,6 +19,7 @@ import { extractYoutubeVideoId } from "../utils/youtube";
 import YoutubeEmbedPlayer from "../components/youtube/youtubeEmbedPlayer";
 import PlaylistAddMusicModal from "../components/modal/playlistAddModal";
 import * as Sentry from '@sentry/react';
+import Toast from "../components/common/toast";
 
 const Playlist = () => {
     const { navigate, playlistCode, accessToken } = useAuthCheck();
@@ -98,17 +99,6 @@ const Playlist = () => {
         },
         [currentIndex, videoList, playlistCode, isLive, nextPlayPost]
     );
-
-    // useEffect(() => {
-    //     const card = document.querySelectorAll(".playlist-card")[currentIndex];
-    //     if (card) {
-    //         card.scrollIntoView({
-    //             behavior: "smooth",
-    //             block: "center",
-    //             inline: "center",
-    //         });
-    //     }
-    // }, [currentIndex]);
 
     const eventSourceRef = useRef<EventSource | null>(null);
     const reconnectAttemptRef = useRef(0);
@@ -217,6 +207,7 @@ const Playlist = () => {
 
     return (
         <ResponsiveContainer style={{ overflowY: "auto" }}>
+
             <nav className="relative flex items-center justify-center mt-[10%] py-3 w-full">
                 <div className="absolute left-0" onClick={() => navigate("/home")}>
                     <IconHome />
@@ -306,6 +297,7 @@ const Playlist = () => {
                 onClose={closeAddMusicModal}
                 playlistCode={playlistCode}
             />
+            {/* <Toast /> */}
         </ResponsiveContainer >
     );
 };

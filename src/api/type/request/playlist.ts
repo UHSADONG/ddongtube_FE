@@ -1,6 +1,7 @@
 export type PostPlaylistRequest = {
     userName: string;
     playlistTitle: string;
+    playlistDescription : string;
     thumbnailUrl: string;
     userPassword: string;
 }
