@@ -19,7 +19,6 @@ import { extractYoutubeVideoId } from "../utils/youtube";
 import YoutubeEmbedPlayer from "../components/youtube/youtubeEmbedPlayer";
 import PlaylistAddMusicModal from "../components/modal/playlistAddModal";
 import * as Sentry from '@sentry/react';
-import Toast from "../components/common/toast";
 
 const Playlist = () => {
     const { navigate, playlistCode, accessToken } = useAuthCheck();
@@ -45,7 +44,7 @@ const Playlist = () => {
     const { thumbnailUrl } = playListMeta.result;
 
     const [isLive, setIsLive] = useState(false);
-    const [currentIndex, setCurrentIndex] = useState(0);
+    const [currentIndex, setCurrentIndex] = useState(playList?.result?.videoList?.findIndex((video: Video) => video.code === playList.result.nowPlayingVideoCode) ?? 0);
 
     const videoList = useMemo(() => {
         return playList?.result?.videoList?.sort((v1, v2) => v1.priority - v2.priority) || [];

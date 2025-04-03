@@ -5,5 +5,8 @@ export type GetPlaylistMetaResponse = {
 }
 
 export type GetPlaylistResponse = {
-    result: Pick<PlayList, 'title' | 'videoList'>;
+    
+    result: Pick<PlayList, 'title' | 'videoList'> & {
+        nowPlayingVideoCode: string;
+    }
 }
