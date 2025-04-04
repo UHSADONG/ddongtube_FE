@@ -22,6 +22,7 @@ import PlaylistAddMusicModal from "../components/modal/playlistAddModal";
 import * as Sentry from '@sentry/react';
 import { useToast } from "../hooks/useToast";
 import { deleteVideo } from '../api/video';
+import { getSessionStorage } from "../utils/sessionStorage";
 
 const Playlist = () => {
 
@@ -70,10 +71,12 @@ const Playlist = () => {
             mutationFn: ({
                 playlistCode,
                 videoCode,
+                isAuto = false,
             }: {
                 playlistCode: string;
                 videoCode: string;
-            }) => postPlaylistNowPlaying(playlistCode, videoCode),
+                isAuto?: boolean;
+            }) => postPlaylistNowPlaying(playlistCode, videoCode, isAuto),
             onSuccess: (data) => {
                 if (!isLive) {
                     setCurrentIndex((prevIndex) => (prevIndex + 1) % videoList.length);
@@ -113,7 +116,7 @@ const Playlist = () => {
     )
 
     const handleNextVideo = useCallback(
-        (touchedIndex: number = -1) => {
+        (touchedIndex: number = -1, isAuto = false) => {
 
             const nextVideo =
                 touchedIndex === -1
@@ -123,7 +126,7 @@ const Playlist = () => {
 
             const nextVideoCode = nextVideo.code;
             if (nextVideoCode) {
-                nextPlayPost({ playlistCode, videoCode: nextVideoCode }).then(() => {
+                nextPlayPost({ playlistCode, videoCode: nextVideoCode, isAuto }).then(() => {
                     // openSuccessToast("영상이 변경이 요청되었습니다.");
                     if (!isLive) {
                         if (touchedIndex === -1) {
@@ -336,9 +339,15 @@ const Playlist = () => {
                 <div className="absolute left-0" onClick={() => navigate("/home")}>
                     <IconHome />
                 </div>
-                <h1 className={`text-text-medium-sm font-semibold text-center transition-colors duration-300 text-font-disabled`}>
-                    {isLive ? currentListener !== -1 ? `${currentListener}명이 같이 듣고 있어요!` : "같이 듣고 있어요!" : "실시간이 아닙니다."}
-                </h1>
+                <div className="flex-1 flex flex-row w-full text-center justify-center items-center inline-block">
+                    <h1 className={`text-text-medium-sm font-bold text-center transition-colors duration-300 text-main`}>
+                        {`${getSessionStorage()?.nickname}님${isLive ? '과' : '은'}`}
+                    </h1>
+                    <h1 className={`text-text-medium-sm font-semibold text-center transition-colors duration-300 text-font-disabled`}>
+                        {isLive ? currentListener !== -1 ? ` ${currentListener}명이 같이 듣고 있어요!` : "같이 듣고 있어요!" : "실시간이 아닙니다."}
+                    </h1>
+                </div>
+
             </nav>
 
             <section key={`${playlistCode}-image`} className="flex flex-col items-start justify-center w-full mt-3 mb-8">
@@ -346,7 +355,7 @@ const Playlist = () => {
                     <YoutubeEmbedPlayer
                         videoId={extractYoutubeVideoId(videoList[currentIndex]?.url || "") ?? ""}
                         onPause={() => console.log("⏸사용자 일시정지")}
-                        onEnded={() => handleNextVideo()}
+                        onEnded={() => handleNextVideo(-1, true)}
                     />
                 ) : (
                     <ImageViewer src={thumbnailUrl} />
