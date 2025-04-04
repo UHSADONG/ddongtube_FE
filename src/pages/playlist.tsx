@@ -168,8 +168,10 @@ const Playlist = () => {
                 heartbeatTimeout: 30 * 60 * 1000,
             });
 
-            eventSourceRef.current.addEventListener("connect", () => {
+            eventSourceRef.current.addEventListener("connect", (message: MessageEvent) => {
                 setIsLive(true);
+                const data = JSON.parse(message.data);
+                setCurrentListener(data.clientCount);
                 reconnectAttemptRef.current = 0;
             });
 
@@ -205,6 +207,16 @@ const Playlist = () => {
                     openSuccessToast("영상이 추가되었습니다.");
                 }
             });
+
+            eventSourceRef.current.addEventListener("enter", (message: MessageEvent) => {
+                const data = JSON.parse(message.data);
+                if (data?.clientCount) {
+                    setCurrentListener(data.clientCount);
+                }
+                if (data?.userName) {
+                    openSuccessToast(`${data.userName}님이 입장하셨습니다.`);
+                }
+            })
 
             eventSourceRef.current.addEventListener("playing", (message: MessageEvent) => {
                 const data = JSON.parse(message.data);
