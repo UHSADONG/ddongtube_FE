@@ -42,17 +42,23 @@ const StartGuest = () => {
     const { form, errors, setErrorsState, onChange } = useStartForm();
 
     const { mutateAsync, } = useDebouncedMutation({
-        mutationFn: ({ nickname, password }: { nickname: string; password: string }) => postUser(playlistCode!, { name: nickname, password }),
+        mutationFn: async ({ nickname, password }: { nickname: string; password: string }) => {
+            try {
+                return await postUser(playlistCode!, { name: nickname, password })
+            } catch (error) {
+                if (error instanceof ApiError) {
+                    if (error.code === "USER001") {
+                        console.log(error.message);
+                        setErrorsState("password", error.message);
+                    }
+                }
+            }
+        }
+        ,
         onSuccess: (data) => {
             addSessionStorage("nickname", form.nickname);
             if ("result" in data) {
                 addSessionStorage("isAdmin", String(data.result.isAdmin));
-            }
-        }, onError: (error) => {
-            if (error instanceof ApiError) {
-                if (error.code === "USER001") {
-                    setErrorsState("password", error.message);
-                }
             }
         }
     }, 500, true)
