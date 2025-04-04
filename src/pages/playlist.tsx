@@ -227,7 +227,9 @@ const Playlist = () => {
 
                     const videoCode = data.videoCode;
                     const videoIndex = videoListRef.current.findIndex((video: Video) => video.code === videoCode);
-                    openSuccessToast(`${data.userName}님이 ${videoListRef.current[videoIndex]?.title}로 변경하였습니다.`);
+                    if (!data?.autoPlay) {
+                        openSuccessToast(`${data.userName}님이 ${videoListRef.current[videoIndex]?.title}로 변경하였습니다.`);
+                    }
                     if (videoIndex !== -1) {
                         setCurrentIndex(videoIndex);
                     }
