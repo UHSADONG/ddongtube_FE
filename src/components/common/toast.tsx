@@ -78,13 +78,13 @@ const Toast = ({ id, message, stage, onClose }: ToastProps) => {
             onTransitionEnd={handleToastTransitionEnd}
             className={`
         fixed top-0 left-1/2 transform -translate-x-1/2
-        max-w-[400px] w-full p-4 mt-4
+        max-w-[400px] w-full mt-4 p-4
         rounded-lg shadow-lg text-white bg-[#0F0F0F]/90
         backdrop-blur-xs transition-all duration-300
         ${visible ? '-translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}
       `}
         >
-            <div className="flex flex-row items-center">
+            <div className="flex flex-row items-center mr-4 w-full">
                 <div
                     onTransitionEnd={handleIconTransitionEnd}
                     className="mr-2 transition-transform duration-200 origin-center"

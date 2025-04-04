@@ -25,6 +25,7 @@ export default class ErrorBoundary extends Component<
     }
 
     static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+        console.error('ErrorBoundary caught an error:', error);
         if (error instanceof ApiError) {
             return {
                 hasError: true,

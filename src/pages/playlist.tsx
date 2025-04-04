@@ -372,7 +372,7 @@ const Playlist = () => {
                     {videoList.length > 0 ? (
                         videoList.map((item, index) => (
                             <Card
-                                className={`playlist-card transition-all duration-300 border-[1px] ${videoList[currentIndex].code === item.code ? "border-main" : "border-stroke-2"
+                                className={`playlist-card transition-all duration-300 border-[1px] ${videoList[currentIndex]?.code === item.code ? "border-main" : "border-stroke-2"
                                     }`}
                                 onClick={isDeleteMode ? () => openSuccessToast("편집 중에는 영상을 변경할 수 없습니다.") : () => handleNextVideo(index)}
                             >
@@ -380,13 +380,13 @@ const Playlist = () => {
                                     <article className="flex flex-col items-start justify-center w-full text-left flex-1">
                                         <div className="flex flex-row items-center justify-start w-full gap-2">
                                             <p
-                                                className={`${videoList[currentIndex].code === item.code ? "text-font-enabled" : "text-font-disabled"
+                                                className={`${videoList[currentIndex]?.code === item.code ? "text-font-enabled" : "text-font-disabled"
                                                     } text-text-medium-md font-medium`}
                                             >
                                                 {item.user.name}
                                             </p>
                                             {
-                                                videoList[currentIndex].code === item.code && (
+                                                videoList[currentIndex]?.code === item.code && (
                                                     <p
                                                         className={`text-text-medium-md font-semibold text-main animate-pulse`}
                                                     >
@@ -399,7 +399,7 @@ const Playlist = () => {
                                         </div>
 
                                         <h1
-                                            className={`${videoList[currentIndex].code === item.code ? "text-font-enabled" : "text-font-disabled"
+                                            className={`${videoList[currentIndex]?.code === item.code ? "text-font-enabled" : "text-font-disabled"
                                                 } text-text-large-bold font-bold`}
                                         >
                                             {item.title}
