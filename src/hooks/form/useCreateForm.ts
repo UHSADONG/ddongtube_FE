@@ -24,7 +24,7 @@ export const useCreateForm = () => {
   const onChange = (field: keyof CreateFormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const value = e.target.value;
     if (field === "title" && value.length > 20) return;
-    if (field === "description" && value.length > 50) return;
+    if (field === "description" && value.length > 100) return;
 
     setForm((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: "" }));

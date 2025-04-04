@@ -43,17 +43,26 @@ export const useStartForm = () => {
 
     const validate = (): boolean => {
         const newErrors: FormErrors = { nickname: "", password: "" };
+        const { nickname = "", password = "" } = form;
 
-        if (!form.nickname.trim()) {
+         if (!nickname.trim()) {
             newErrors.nickname = "닉네임은 필수입니다.";
+        } else if (nickname.length < 2) {
+            newErrors.nickname = "닉네임은 2자 이상이어야 합니다.";
+        } else if (nickname.length > 20) {
+            newErrors.nickname = "닉네임은 20자 이내여야 합니다.";
         }
 
-        if (form.password && form.password.length < 4) {
-            newErrors.password = "비밀번호는 4자 이상이어야 합니다.";
+        if (password) {
+            if (password.length < 4) {
+                newErrors.password = "비밀번호는 4자 이상이어야 합니다.";
+            } else if (password.length > 100) {
+                newErrors.password = "비밀번호는 100자 이내여야 합니다.";
+            }
         }
 
         setErrors(newErrors);
-        return !newErrors.nickname && !newErrors.password;
+        return Object.values(newErrors).every(error => !error);
     };
 
     const reset = () => {
