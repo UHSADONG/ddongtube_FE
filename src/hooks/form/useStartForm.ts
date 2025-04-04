@@ -32,6 +32,10 @@ export const useStartForm = () => {
         reset();
     },[])
 
+    const setErrorsState = (field: keyof FormErrors, message: string) => {
+        setErrors((prev) => ({ ...prev, [field]: message }));
+    }
+
     const onChange = (field: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setForm((prev) => ({ ...prev, [field]: e.target.value }));
         setErrors((prev) => ({ ...prev, [field]: "" }));
@@ -71,6 +75,7 @@ export const useStartForm = () => {
         form,
         errors,
         onChange,
+        setErrorsState,
         validate,
         onSubmit
     };
