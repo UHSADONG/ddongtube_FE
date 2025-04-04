@@ -63,36 +63,31 @@ const Toast = ({ id, message, stage, onClose }: ToastProps) => {
             }
         }
     };
-
     return (
-        <div
-            onTransitionEnd={handleToastTransitionEnd}
-            className={`
-        fixed top-0 left-1/2 transform -translate-x-1/2
-        w-full
-        mt-4 p-4
-        rounded-lg shadow-lg text-white bg-[#0F0F0F]/90
-        backdrop-blur-xs transition-all duration-300
-        ${visible ? '-translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}
-      `}
-        >
-            <div className="flex flex-row items-center max-w-[400px]">
-                <div
-                    onTransitionEnd={handleIconTransitionEnd}
-                    className="mr-2 transition-transform duration-200 origin-center"
-                    style={{ transform: `scale(${iconScale})` }}
-                >
-                    {iconType === 'loading' ? (
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                        <IconCheck className="w-6 h-6" />
-                    )}
+        <div className="fixed top-4 inset-x-0 flex justify-center">
+            <div
+                onTransitionEnd={handleToastTransitionEnd}
+                className={`
+      w-full max-w-[400px] mx-4 p-4
+      rounded-lg shadow-lg text-white bg-[#0F0F0F]/90
+      backdrop-blur-xs transition-all duration-300
+      ${visible ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}
+    `}
+            >
+                <div className="flex flex-row items-center">
+                    <div
+                        onTransitionEnd={handleIconTransitionEnd}
+                        className="mr-2 transition-transform duration-200 origin-center"
+                        style={{ transform: `scale(${iconScale})` }}
+                    >
+                        {iconType === 'loading' ? (
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                            <IconCheck className="w-6 h-6" />
+                        )}
+                    </div>
+                    <span className="text-sm">{message}</span>
                 </div>
-                <span className="text-sm">
-                    {iconType === 'loading'
-                        ? `${message}`
-                        : `${message}`}
-                </span>
             </div>
         </div>
     );

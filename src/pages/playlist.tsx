@@ -220,14 +220,16 @@ const Playlist = () => {
 
             eventSourceRef.current.addEventListener("playing", (message: MessageEvent) => {
                 const data = JSON.parse(message.data);
-                if (data?.code) {
-                    openSuccessToast("영상이 변경되었습니다.");
-                    const videoCode = data.code;
+                if (data?.videoCode && data?.userName) {
+
+                    const videoCode = data.videoCode;
                     const videoIndex = videoListRef.current.findIndex((video: Video) => video.code === videoCode);
+                    openSuccessToast(`${data.userName}님이 ${videoListRef.current[videoIndex]?.title}로 변경하였습니다.`);
                     if (videoIndex !== -1) {
                         setCurrentIndex(videoIndex);
                     }
                 }
+
 
             });
 
@@ -249,22 +251,17 @@ const Playlist = () => {
                     scope.setTag("errorCode", "SSE000");
                     Sentry.captureException(error);
                 });
-
-                // 증가하는 재연결 시도 횟수에 따라 backoff 시간(초)을 계산합니다.
                 reconnectAttemptRef.current++;
-                // 계산된 시간: 2^n (n번 시도), 단 최대 16초까지
                 const calculatedTimeSec = Math.pow(2, reconnectAttemptRef.current);
                 const backoffTimeSec = Math.min(calculatedTimeSec, 16);
                 const backoffTimeMs = backoffTimeSec * 1000;
 
-                // 만약 backoff 시간이 16초라면 카운트를 증가, 아니면 초기화
                 if (backoffTimeSec === 16) {
                     sixteenCountRef.current++;
                 } else {
                     sixteenCountRef.current = 0;
                 }
 
-                // 16초 backoff가 10번 연속이면 연결 포기
                 if (sixteenCountRef.current >= 10) {
                     throw new Error("SSE connection failed after multiple attempts");
                 }
