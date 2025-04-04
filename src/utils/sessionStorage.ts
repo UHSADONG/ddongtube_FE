@@ -6,7 +6,7 @@ type SessionStorageObject = {
 };
 
 export const setSessionStorage = (
-    {playlistCode, accessToken} : SessionStorageObject
+    {playlistCode, accessToken} : Omit<SessionStorageObject, "isAdmin" | "nickname">,
 ) => {
     window.sessionStorage.setItem("playlistCode", playlistCode);
     window.sessionStorage.setItem("accessToken", accessToken);

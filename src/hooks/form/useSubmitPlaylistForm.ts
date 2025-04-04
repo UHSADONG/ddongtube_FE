@@ -1,7 +1,7 @@
 import { postPlaylist, postPlaylistThumbnail } from "../../api/playlist";
 import { PostPlaylistRequest } from '../../api/type/request/playlist';
 import { PostPlaylistResponse } from "../../api/type/response/playlist";
-import { setSessionStorage } from "../../utils/sessionStorage";
+import { addSessionStorage, setSessionStorage } from "../../utils/sessionStorage";
 import { useDebouncedMutation } from "../react-query/useDebouncedMutation";
 
 export const useSubmitPlaylistForm = () => {
@@ -50,6 +50,9 @@ export const useSubmitPlaylistForm = () => {
     const {result : resultData } = result as PostPlaylistResponse;
 
     const { playlistCode, accessToken } = resultData;
+
+    addSessionStorage("nickname", data.userName);
+    addSessionStorage("isAdmin", String(true));
 
     setSessionStorage({
       playlistCode,
