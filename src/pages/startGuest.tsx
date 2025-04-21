@@ -2,7 +2,7 @@ import Button from "../components/common/button"
 import Input from "../components/common/input"
 import { useStartForm } from "../hooks/form/useStartForm";
 import { ResponsiveContainer } from "../container/responsiveContainer";
-import { removeSessionStorage, setSessionStorage } from "../utils/sessionStorage";
+import { addSessionStorage, removeSessionStorage, setSessionStorage } from "../utils/sessionStorage";
 import { useNavigate, useParams } from "react-router";
 import ImageViewer from "../components/common/imageViewer";
 import PlaylistDescription from "../components/common/playlistDescription";
@@ -28,28 +28,38 @@ const StartGuest = () => {
         })
     }
 
-    const { data } = useSuspenseQuery({
+    const { data, isError, error } = useSuspenseQuery({
         queryKey: ["playlistMetaPublic", playlistCode],
         queryFn: async () => {
             const result = await removeSessionStorageAsync().then(() => getPlaylistMetaPublic(playlistCode!));
-            return result;
+            return result ?? null;
         },
         retry: 1,
         staleTime: 0
     });
 
     const { title, thumbnailUrl, description } = data.result;
-
-
-    const { form, errors, onChange } = useStartForm();
+    const { form, errors, setErrorsState, onChange } = useStartForm();
 
     const { mutateAsync, } = useDebouncedMutation({
-        mutationFn: ({ nickname, password }: { nickname: string; password: string }) => postUser(playlistCode!, { name: nickname, password }),
-        onSuccess: () => {
-            console.log("성공");
-        },
-        onError: () => {
-            console.log("실패");
+        mutationFn: async ({ nickname, password }: { nickname: string; password: string }) => {
+            try {
+                return await postUser(playlistCode!, { name: nickname, password })
+            } catch (error) {
+                if (error instanceof ApiError) {
+                    if (error.code === "USER001") {
+                        console.log(error.message);
+                        setErrorsState("password", error.message);
+                    }
+                }
+            }
+        }
+        ,
+        onSuccess: (data) => {
+            addSessionStorage("nickname", form.nickname);
+            if ("result" in data) {
+                addSessionStorage("isAdmin", String(data.result.isAdmin));
+            }
         }
     }, 500, true)
 
@@ -75,6 +85,13 @@ const StartGuest = () => {
 
     return (
         <ResponsiveContainer>
+            <meta name="og:title" content={title} />
+            <meta name="og:description" content={description} />
+            <meta name="og:image" content={thumbnailUrl} />
+            <meta name="og:url" content={`${import.meta.env.VITE_REACT_SHARE_URL}/${playlistCode}`} />
+            <meta name="og:type" content="website" />
+            <meta name="og:site_name" content="딥플리" />
+            <meta name="og:locale" content="ko_KR" />
             <section key={`${playlistCode}-image`} className="flex flex-col items-start justify-center mt-[10%] w-full">
                 <ImageViewer src={thumbnailUrl} />
                 <PlaylistDescription title={title} description={description} isCenter={true} />

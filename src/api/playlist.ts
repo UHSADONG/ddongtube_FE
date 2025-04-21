@@ -32,8 +32,8 @@ export const postPlaylist = (body: PostPlaylistRequest): Promise<PostPlaylistRes
 };
 
 
-export const postPlaylistNowPlaying = (playlistCode: string, videoCode : string): Promise<boolean | {}> => {
-    return postFetch<boolean, string>(`/playlist/${playlistCode}/now-playing?videoCode=${videoCode}`).then(res => res ?? false)
+export const postPlaylistNowPlaying = (playlistCode: string, videoCode : string, isAuto: boolean = false): Promise<boolean | {}> => {
+    return postFetch<boolean, string>(`/playlist/${playlistCode}/now-playing?videoCode=${videoCode}&autoPlay=${isAuto}`).then(res => res ?? false)
 }
 
 export const deletePlaylist = (playlistCode: string): Promise<boolean | {}> => {

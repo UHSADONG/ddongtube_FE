@@ -24,7 +24,7 @@ const Error = () => {
             case "PNF":
                 return "홈으로 돌아가기";
             default:
-                return "알 수 없는 오류입니다.";
+                return "홈으로 돌아가기";
         }
     }
 

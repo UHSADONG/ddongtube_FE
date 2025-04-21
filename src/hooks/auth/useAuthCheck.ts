@@ -21,5 +21,7 @@ export const useAuthCheck = () => {
         authCheck: storage ? true : false,
         playlistCode : storage?.playlistCode ?? null,
         accessToken : storage?.accessToken,
+        isAdmin : storage?.isAdmin,
+        nickname : storage?.nickname,
     }
 }   

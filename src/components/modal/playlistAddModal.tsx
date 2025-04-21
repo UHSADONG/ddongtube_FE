@@ -10,12 +10,14 @@ import IconCloseModal from "../../assets/playlist/ic_close_modal.svg?react";
 import useYoutubeState from "../../hooks/youtube/useYoutubeState";
 
 interface PlaylistAddMusicModalProps {
+    openToast: () => void;
     isOpen: boolean;
     onClose: () => void;
     playlistCode: string;
 }
 
 function PlaylistAddMusicModal({
+    openToast,
     isOpen,
     onClose,
     playlistCode,
@@ -33,7 +35,7 @@ function PlaylistAddMusicModal({
         reason,
     } = useYoutubeState();
 
-    const { mutateAsync: submitYoutubeUrl } = useDebouncedMutation(
+    const { mutateAsync: submitYoutubeUrl, isPending } = useDebouncedMutation(
         {
             mutationFn: ({
                 playlistCode,
@@ -44,8 +46,8 @@ function PlaylistAddMusicModal({
                 youtubeUrl: string;
                 videoDescription: string;
             }) => postVideo(playlistCode, { videoUrl: youtubeUrl, videoDescription }),
-            onSuccess: (data) => {
-                console.log("영상 추가 성공:", data);
+            onSuccess: () => {
+                openToast();
             },
             onError: (error) => {
                 console.error("영상 추가 실패:", error);
@@ -63,16 +65,13 @@ function PlaylistAddMusicModal({
             youtubeUrl,
             videoDescription,
         });
-        // 성공 후, 재생목록 다시 불러오기
         queryClient.invalidateQueries({
             queryKey: ["playlist", playlistCode],
         });
         queryClient.invalidateQueries({
             queryKey: ["playlistMeta", playlistCode],
         });
-        // 모달 닫기
         onClose();
-        // state 초기화
         resetYoutubeUrl();
     }, [
         playlistCode,
@@ -92,7 +91,7 @@ function PlaylistAddMusicModal({
     const embedId = extractYoutubeVideoId(youtubeUrl);
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-[rgba(31,31,32,0.6)]" >
+        <div className="fixed inset-0 flex items-center justify-center bg-[#1F1F20]/90" >
             <div className="w-full max-w-[400px] mx-6 flex flex-col bg-fill rounded-400 overflow-hidden items-center justify-center px-4 pb-7 pt-5 rounded-[20px]">
                 <div className="relative w-full max-w-md rounded-md">
                     <nav className="relative flex items-center justify-center w-full">
@@ -135,11 +134,11 @@ function PlaylistAddMusicModal({
                     )}
                     <button
                         onClick={handleSubmit}
-                        disabled={!!youtubeUrl && !isValid}
-                        className={`w-full text-text-large-bold font-bold text-white py-3 px-6 rounded-xl ${!!youtubeUrl && !isValid ? "bg-font-disabled" : "bg-main hover:bg-main-focus"
+                        disabled={!!youtubeUrl && !isValid && isPending}
+                        className={`w-full text-text-large-bold font-bold text-white py-3 px-6 rounded-xl ${!!youtubeUrl && !isValid && isPending ? "bg-font-disabled" : "bg-main hover:bg-main-focus"
                             }`}
                     >
-                        확인
+                        {isPending ? '영상 추가하는 중..' : '확인'}
                     </button>
                 </div>
             </div>
