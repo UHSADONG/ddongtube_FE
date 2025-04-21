@@ -1,6 +1,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Navigate, Route, useLocation } from 'react-router';
 import { Suspense } from 'react';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from "@vercel/speed-insights/react"
 
 import { queryClientConfig } from './config/queryClient'
 import { SentryRoutes } from './sentry/routes';
@@ -25,6 +27,8 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <Analytics />
+      <SpeedInsights />
       <ErrorBoundary key={location.key}>
         <Suspense fallback={<Loading isLoading={true} />}>
           <SentryRoutes>
