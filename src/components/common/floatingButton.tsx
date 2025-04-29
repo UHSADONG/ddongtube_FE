@@ -1,6 +1,6 @@
 
-import IconShare from '../../assets/share/ic_share.svg?react'
-import { PlaylistMeta } from '../../types/playlist';
+import IconShare from '@/assets/share/ic_share.svg?react'
+import { PlaylistMeta } from '@/types/playlist';
 
 type FloatingButtonProps = {
     playlistCode: string;

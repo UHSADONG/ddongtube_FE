@@ -1,13 +1,16 @@
-import Button from "../components/common/button";
-import Input from "../components/common/input";
-import useThumbnailUpload from "../hooks/thumbnail/useThumbnailUpload";
-import { useCreateForm } from "../hooks/form/useCreateForm";
-import { useSubmitPlaylistForm } from '../hooks/form/useSubmitPlaylistForm';
-import usePlaylistFormStore from "../hooks/store/usePlaylistForm";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import SuccessIcon from "../assets/create/ic_success.webp";
-import useModal from "../hooks/modal/useSuccessModal";
+
+import SuccessIcon from "@/assets/create/ic_success.webp";
+
+import Button from "@/components/common/button";
+import Input from "@/components/common/input";
+
+import useModal from "@/hooks/modal/useSuccessModal";
+import useThumbnailUpload from "@/hooks/thumbnail/useThumbnailUpload";
+import { useCreateForm } from "@/hooks/form/useCreateForm";
+import { useSubmitPlaylistForm } from '@/hooks/form/useSubmitPlaylistForm';
+import usePlaylistFormStore from "../hooks/store/usePlaylistForm";
 
 let timeoutPromise: Promise<void> | null = null;
 

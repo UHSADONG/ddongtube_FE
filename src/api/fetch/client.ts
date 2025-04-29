@@ -1,6 +1,6 @@
-import { ApiError } from "../../error/apiError";
+import { ApiError } from "@/error/apiError";
 import * as Sentry from '@sentry/react';
-import { getSessionStorage } from "../../utils/sessionStorage";
+import { getSessionStorage } from "@/utils/sessionStorage";
 
 const baseURL = import.meta.env.VITE_REACT_SERVER_BASE_URL;
 

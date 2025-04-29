@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import RoundButton from "../components/common/roundButton";
+import RoundButton from "@/components/common/roundButton";
 
 const NotFound = () => {
   const navigate = useNavigate();

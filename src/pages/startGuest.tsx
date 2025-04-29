@@ -1,17 +1,17 @@
-import Button from "../components/common/button"
-import Input from "../components/common/input"
-import { useStartForm } from "../hooks/form/useStartForm";
-import { ResponsiveContainer } from "../container/responsiveContainer";
-import { addSessionStorage, removeSessionStorage, setSessionStorage } from "../utils/sessionStorage";
+import Button from "@/components/common/button"
+import Input from "@/components/common/input"
+import { useStartForm } from "@/hooks/form/useStartForm";
+import { ResponsiveContainer } from "@/container/responsiveContainer";
+import { addSessionStorage, removeSessionStorage, setSessionStorage } from "@/utils/sessionStorage";
 import { useNavigate, useParams } from "react-router";
-import ImageViewer from "../components/common/imageViewer";
-import PlaylistDescription from "../components/common/playlistDescription";
-import { useDebouncedMutation } from "../hooks/react-query/useDebouncedMutation";
-import { postUser } from "../api/user";
-import { PostUserResponse } from "../api/type/response/user";
-import { ApiError } from "../error/apiError";
+import ImageViewer from "@/components/common/imageViewer";
+import PlaylistDescription from "@/components/common/playlistDescription";
+import { useDebouncedMutation } from "@/hooks/react-query/useDebouncedMutation";
+import { postUser } from "@/api/user";
+import { PostUserResponse } from "@/api/type/response/user";
+import { ApiError } from "@/error/apiError";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { getPlaylistMetaPublic } from "../api/playlist";
+import { getPlaylistMetaPublic } from "@/api/playlist";
 
 const StartGuest = () => {
 

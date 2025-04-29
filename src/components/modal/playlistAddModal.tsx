@@ -1,13 +1,14 @@
 // src/components/playlist/PlaylistAddMusicModal.tsx
 
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { postVideo } from "../../api/video";
-import { useDebouncedMutation } from "../../hooks/react-query/useDebouncedMutation";
-import { extractYoutubeVideoId } from "../../utils/youtube";
-import Input from "../common/input";
-import IconCloseModal from "../../assets/playlist/ic_close_modal.svg?react";
-import useYoutubeState from "../../hooks/youtube/useYoutubeState";
+
+import { postVideo } from "@/api/video";
+import { useDebouncedMutation } from "@/hooks/react-query/useDebouncedMutation";
+import { extractYoutubeVideoId } from "@/utils/youtube";
+import Input from "@/components/common/input";
+import IconCloseModal from "@/assets/playlist/ic_close_modal.svg?react";
+import useYoutubeState from "@/hooks/youtube/useYoutubeState";
 
 interface PlaylistAddMusicModalProps {
     openToast: () => void;

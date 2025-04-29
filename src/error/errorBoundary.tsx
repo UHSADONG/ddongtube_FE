@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import { Navigate } from 'react-router';
-import { ApiError } from './apiError';
+import { ApiError } from '@/error/apiError';
 
 interface ErrorBoundaryProps {
 

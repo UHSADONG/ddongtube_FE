@@ -1,4 +1,4 @@
-import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { EventSourcePolyfill, NativeEventSource } from "event-source-polyfill";
 import { useAuthCheck } from "../hooks/auth/useAuthCheck";
@@ -38,29 +38,16 @@ const Playlist = () => {
         queryFn: () => getPlaylistMeta(playlistCode),
     });
 
-
     const { data: playList } = useSuspenseQuery({
         queryKey: ["playlist", playlistCode],
         queryFn: () => getPlaylist(playlistCode),
         retry: 1,
         refetchOnWindowFocus: true,
-        staleTime: 0,
-        select: (data) => {
-            const videoList = data?.result?.videoList?.slice().sort((v1, v2) => v1.priority - v2.priority);
-            return {
-                ...data,
-                result: {
-                    ...data.result,
-                    videoList: videoList ?? []
-                },
-            };
-        }
+        staleTime: 0
     });
 
     const { thumbnailUrl } = playListMeta.result;
-
-    const { result } = playList;
-    const { videoList } = result;
+    const { videoList = [] } = playList.result;
 
     const [isLive, setIsLive] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(playList?.result?.videoList?.findIndex((video: Video) => video.code === playList.result.nowPlayingVideoCode) ?? 0);
@@ -79,7 +66,7 @@ const Playlist = () => {
             }) => postPlaylistNowPlaying(playlistCode, videoCode, isAuto),
             onSuccess: (data) => {
                 if (!isLive) {
-                    setCurrentIndex((prevIndex) => (prevIndex + 1) % videoList.length);
+                    setCurrentIndex((prevIndex) => (prevIndex + 1) % videoList?.length);
                 }
             },
             onError: (error) => {
@@ -92,7 +79,6 @@ const Playlist = () => {
 
     const {
         mutateAsync: _deleteVideo,
-        isPending: isDeletePending,
     } = useDebouncedMutation(
         {
             mutationFn: ({
@@ -142,6 +128,7 @@ const Playlist = () => {
     );
 
     const videoListRef = useRef(videoList);
+
     useEffect(() => {
         videoListRef.current = videoList;
     }, [videoList]);
@@ -156,8 +143,6 @@ const Playlist = () => {
 
         let fullURL = `${import.meta.env.VITE_REACT_SERVER_BASE_URL}/sse/${playlistCode}/connect`;
         const EventSourceImpl = EventSourcePolyfill || NativeEventSource;
-
-        const maxReconnectAttempts = 5;
 
         const connect = () => {
             if (eventSourceRef.current) {
@@ -341,7 +326,7 @@ const Playlist = () => {
                 <div className="absolute left-0" onClick={() => navigate("/home")}>
                     <IconHome />
                 </div>
-                <div className="flex-1 flex flex-row w-full text-center justify-center items-center inline-block">
+                <div className="flex-1 flex-row w-full text-center justify-center items-center inline-block">
                     <h1 className={`text-text-medium-sm font-bold text-center transition-colors duration-300 text-main`}>
                         {`${getSessionStorage()?.nickname}님${isLive ? '과' : '은'}`}
                     </h1>

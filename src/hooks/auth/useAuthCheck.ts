@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
-import { getSessionStorage, removeSessionStorage } from '../../utils/sessionStorage';
 import { useNavigate } from 'react-router';
+import { getSessionStorage, removeSessionStorage } from '@/utils/sessionStorage';
 
 export const useAuthCheck = () => {
 

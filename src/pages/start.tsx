@@ -1,10 +1,15 @@
-import Button from "../components/common/button"
-import Input from "../components/common/input"
-import StartImage from "../assets/start/img_start.webp"
-import { useStartForm } from "../hooks/form/useStartForm";
-import { ResponsiveContainer } from "../container/responsiveContainer";
 import { useEffect } from "react";
-import { removeSessionStorage } from "../utils/sessionStorage";
+
+import Button from "@/components/common/button"
+import Input from "@/components/common/input"
+
+import { ResponsiveContainer } from "@/container/responsiveContainer";
+
+import { useStartForm } from "@/hooks/form/useStartForm";
+
+import { removeSessionStorage } from "@/utils/sessionStorage";
+
+import StartImage from "@/assets/start/img_start.webp"
 
 let timeoutPromise: Promise<void> | null = null;
 
