@@ -4,20 +4,21 @@ import { Suspense } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from "@vercel/speed-insights/react"
 
-import { queryClientConfig } from './config/queryClient'
-import { SentryRoutes } from './sentry/routes';
+import { queryClientConfig } from '@/config/queryClient'
+import { SentryRoutes } from '@/sentry/routes';
 
-import Start from './pages/start';
-import Create from './pages/create';
-import Home from './pages/home';
-import Playlist from './pages/playlist';
-import Error from './pages/error';
-import Offline from './pages/offline';
-import NotFound from './pages/notFound';
-import Test from './pages/test';
-import Loading from './pages/loading';
-import StartGuest from './pages/startGuest';
-import ErrorBoundary from './error/errorBoundary';
+import Start from '@/pages/start';
+import Create from '@/pages/create';
+import Home from '@/pages/home';
+import Playlist from '@/pages/playlist';
+import Error from '@/pages/error';
+import Offline from '@/pages/offline';
+import NotFound from '@/pages/notFound';
+import Test from '@/pages/test';
+import Loading from '@/pages/loading';
+import StartGuest from '@/pages/startGuest';
+import ErrorBoundary from '@/error/errorBoundary';
+import { PlaylistProvider } from './providers/PlaylistProvider';
 
 const queryClient = new QueryClient(queryClientConfig);
 
@@ -37,7 +38,11 @@ function App() {
             <Route path="/start/:playlistCode" element={<StartGuest />} />
             <Route path="/create" element={<Create />} />
             <Route path="/home" element={<Home />} />
-            <Route path="/playlist" element={<Playlist />} />
+            <Route path="/playlist" element={
+              <PlaylistProvider>
+                <Playlist />
+              </PlaylistProvider>
+            } />
             <Route path="/error" element={<Error />} />
             <Route path="/error/:code" element={<Error />} />
             <Route path="/offline" element={<Offline />} />

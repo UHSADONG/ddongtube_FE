@@ -1,0 +1,29 @@
+import React from 'react'
+import PlaylistDescription from '@/components/common/playlistDescription';
+import PlayNext from '@/assets/playlist/ic_play_next.svg?react';
+
+type VideoTitleProps = {
+    title: string | undefined;
+    description: string | undefined;
+    handleNextVideo: () => void;
+}
+
+const VideoTitle = ({
+    title,
+    description,
+    handleNextVideo
+}: VideoTitleProps) => {
+    return (
+        <div className="flex flex-row items-end justify-center w-full my-3">
+            <PlaylistDescription
+                title={title ?? "영상 없음"}
+                description={description ?? "영상이 없습니다"}
+            />
+            <button onClick={() => handleNextVideo()}>
+                <PlayNext />
+            </button>
+        </div>
+    )
+}
+
+export default VideoTitle
