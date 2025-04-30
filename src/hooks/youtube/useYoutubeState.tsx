@@ -1,9 +1,9 @@
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import {
   checkYoutubeVideoExists,
   extractYoutubeVideoId,
   validateYoutubeUrlFormat,
-} from '../../utils/youtube'
+} from '@/utils/youtube'
 
 type YoutubeValidationResult = {
   isValid: boolean

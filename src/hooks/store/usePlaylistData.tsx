@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { PlayList } from '../../types/playlist';
+import { PlayList } from '@/types/playlist';
 
 interface PlaylistDataStore {
     playlist: PlayList | undefined;

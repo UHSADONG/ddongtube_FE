@@ -1,6 +1,6 @@
 // Toast.tsx
 import React, { useEffect, useState } from 'react';
-import IconCheck from '../../assets/toast/ic_check.svg?react';
+import IconCheck from '@/assets/toast/ic_check.svg?react';
 
 export type ToastStage = 'loading' | 'success';
 

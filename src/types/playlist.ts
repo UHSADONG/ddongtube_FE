@@ -1,4 +1,4 @@
-import { Video } from "./video";
+import { Video } from "@/types/video";
 
 export type PlaylistForm = {
     userName: string;

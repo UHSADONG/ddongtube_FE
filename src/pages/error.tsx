@@ -1,8 +1,10 @@
 import { useNavigate, useParams } from "react-router";
 
-import IconError from "../assets/error/ic_error.svg?react";
-import { ResponsiveContainer } from "../container/responsiveContainer";
-import RoundButton from "../components/common/roundButton";
+import { ResponsiveContainer } from "@/container/responsiveContainer";
+
+import RoundButton from "@/components/common/roundButton";
+
+import IconError from "@/assets/error/ic_error.svg?react";
 
 const Error = () => {
 

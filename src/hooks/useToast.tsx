@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import Toast, { ToastStage } from '../components/common/toast';
+import Toast, { ToastStage } from '@/components/common/toast';
 
 export interface IToast {
     id: number | string;

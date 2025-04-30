@@ -1,8 +1,8 @@
-import { postPlaylist, postPlaylistThumbnail } from "../../api/playlist";
-import { PostPlaylistRequest } from '../../api/type/request/playlist';
-import { PostPlaylistResponse } from "../../api/type/response/playlist";
-import { addSessionStorage, setSessionStorage } from "../../utils/sessionStorage";
-import { useDebouncedMutation } from "../react-query/useDebouncedMutation";
+import { addSessionStorage, setSessionStorage } from "@/utils/sessionStorage";
+import { useDebouncedMutation } from "@/hooks/react-query/useDebouncedMutation";
+import { postPlaylist, postPlaylistThumbnail } from "@/api/playlist";
+import { PostPlaylistRequest } from '@/api/type/request/playlist';
+import { PostPlaylistResponse } from "@/api/type/response/playlist";
 
 export const useSubmitPlaylistForm = () => {
 

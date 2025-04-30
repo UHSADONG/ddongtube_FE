@@ -3,7 +3,8 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import svgr from 'vite-plugin-svgr';
-import { VitePWA } from 'vite-plugin-pwa'
+import { VitePWA } from 'vite-plugin-pwa';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -38,7 +39,8 @@ export default defineConfig({
         background_color: '#1F1F20',
         theme_color: '#D93F0F'
       }
-     })
+     }),
+     tsconfigPaths()
   ],
 
   build: {

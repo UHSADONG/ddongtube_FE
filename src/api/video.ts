@@ -1,5 +1,5 @@
-import { deleteFetch, postFetch } from "./fetch/client";
-import { PostVideoRequest } from "./type/request/video";
+import { deleteFetch, postFetch } from "@/api/fetch/client";
+import { PostVideoRequest } from "@/api/type/request/video";
 
 export const postVideo = (playlistCode : string, body: PostVideoRequest): Promise<boolean | {}> => {
     return postFetch(`/video/${playlistCode}`, body).then(res => res ?? false)

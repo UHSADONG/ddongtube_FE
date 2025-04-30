@@ -1,12 +1,15 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { useAuthCheck } from "../hooks/auth/useAuthCheck";
-import { getPlaylistMeta } from "../api/playlist";
-import Card from "../components/common/card";
-import FloatingButton from "../components/common/floatingButton";
-import ImageViewer from "../components/common/imageViewer";
-import PlaylistDescription from "../components/common/playlistDescription";
-import UserCardText from "../components/user/userCardText";
-import { useToast } from "../hooks/useToast";
+import Card from "@/components/common/card";
+import FloatingButton from "@/components/common/floatingButton";
+import ImageViewer from "@/components/common/imageViewer";
+import PlaylistDescription from "@/components/common/playlistDescription";
+import UserCardText from "@/components/user/userCardText";
+
+import { getPlaylistMeta } from "@/api/playlist";
+
+import { useAuthCheck } from "@/hooks/auth/useAuthCheck";
+import { useToast } from "@/hooks/useToast";
+
 
 const Home = () => {
 
