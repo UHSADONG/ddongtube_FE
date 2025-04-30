@@ -26,7 +26,7 @@ const PlaylistList = ({
 
     const { removeVideo } = usePlaylistActions(playlistCode);
 
-    const handleVideoDelete = (e: Event, item: any) => {
+    const handleVideoDelete = (e: React.MouseEvent<SVGSVGElement, MouseEvent>, item: Video) => {
         e.stopPropagation();
         if (item.code === videoList[currentIndex]?.code) {
             openSuccessToast('현재 재생 중인 영상은 삭제할 수 없습니다.');

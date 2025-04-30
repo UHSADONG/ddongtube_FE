@@ -10,7 +10,7 @@ import useModal from "@/hooks/modal/useSuccessModal";
 import useThumbnailUpload from "@/hooks/thumbnail/useThumbnailUpload";
 import { useCreateForm } from "@/hooks/form/useCreateForm";
 import { useSubmitPlaylistForm } from '@/hooks/form/useSubmitPlaylistForm';
-import usePlaylistFormStore from "../hooks/store/usePlaylistForm";
+import usePlaylistFormStore from "@/hooks/store/usePlaylistForm";
 
 let timeoutPromise: Promise<void> | null = null;
 

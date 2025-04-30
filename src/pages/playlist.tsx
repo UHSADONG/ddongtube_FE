@@ -34,6 +34,9 @@ const Playlist = () => {
     usePlaylistSSE({ playlistCode, accessToken });
 
     const handleNextVideo = useCallback((touchedIndex: number = -1, isAutoPlay = false) => {
+
+        if (videoList.length === 0) return;
+
         const nextVideo = touchedIndex === -1
             ? videoList[(currentIndex + 1) % videoList.length]
             : videoList[touchedIndex];

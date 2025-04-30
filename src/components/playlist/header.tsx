@@ -1,7 +1,7 @@
 
 import IconHome from "@/assets/playlist/ic_home.svg?react";
 import { getSessionStorage } from '@/utils/sessionStorage';
-import { useAuthCheck } from '../../hooks/auth/useAuthCheck';
+import { useAuthCheck } from '@/hooks/auth/useAuthCheck';
 
 type HeaderProps = {
     isLive: boolean;
