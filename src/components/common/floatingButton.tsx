@@ -38,7 +38,7 @@ const FloatingButton = ({
                     disabled={disabled}
                     className={`
                     w-fit text-text-large-bold text-white rounded-[40px] py-4 px-5
-                    ${disabled ? 'bg-button' : 'bg-main hover:bg-main-focus'}
+                    ${disabled ? 'bg-button' : 'bg-main hover:bg-main-focus action:bg-main-focus'}
                     transition duration-200 ease-in-out font-bold
                 `}
                 >
@@ -48,7 +48,7 @@ const FloatingButton = ({
                     onClick={onShareClick}
                     disabled={disabled}
                     className={`
-                    w-fit text-text-large-bold text-white rounded-full py-4 px-4 bg-button
+                    w-fit text-text-large-bold text-white rounded-full py-4 px-4 bg-button hover:bg-button-hover active:bg-button-hover
                     transition duration-200 ease-in-out font-bold
                     flex items-center justify-center flex-row space-x-1
                 `}

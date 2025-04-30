@@ -23,7 +23,15 @@ const VideoTitle = ({
                 title={title ?? "영상 없음"}
                 description={description ?? "영상이 없습니다"}
             />
-            <button onClick={() => handleNextVideo() ?? (() => { })}>
+            <button
+                className="
+                    transition-colors duration-200
+                    group
+                    text-[#979797] 
+                    hover:text-main
+                    active:text-main-focus
+                "
+                onClick={() => handleNextVideo() ?? (() => { })}>
                 <PlayNext />
             </button>
         </div>

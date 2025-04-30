@@ -136,7 +136,11 @@ function PlaylistAddMusicModal({
                     <button
                         onClick={handleSubmit}
                         disabled={!!youtubeUrl && !isValid && isPending}
-                        className={`w-full text-text-large-bold font-bold text-white py-3 px-6 rounded-xl ${!!youtubeUrl && !isValid && isPending ? "bg-font-disabled" : "bg-main hover:bg-main-focus"
+                        className={`w-full text-text-large-bold font-bold text-white py-3 px-6 rounded-xl transition duration-200 ease-in-out ${!!youtubeUrl && !isValid && isPending
+                                ? "bg-font-disabled"
+                                : isPending
+                                    ? "bg-main-focus"
+                                    : "bg-main hover:bg-main-focus active:bg-main-focus"
                             }`}
                     >
                         {isPending ? '영상 추가하는 중..' : '확인'}

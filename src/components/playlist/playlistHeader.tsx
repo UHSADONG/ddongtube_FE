@@ -15,7 +15,7 @@ const PlaylistHeader = () => {
                 재생목록
             </label>
             <button
-                className="text-text-medium-sm text-font-disabled font-medium pt-5 pb-3 underline underline-offset-2 pl-3 pr-3"
+                className="text-text-medium-sm text-font-disabled font-medium pt-5 pb-3 underline underline-offset-2 pl-3 pr-3 hover:text-font-enabled active:text-font-enabled transition-all duration-200 ease-in-out"
                 onClick={toggleDeleteMode}>편집</button>
         </nav>
     )
