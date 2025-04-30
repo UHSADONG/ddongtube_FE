@@ -1,4 +1,3 @@
-
 import IconHome from "@/assets/playlist/ic_home.svg?react";
 import { getSessionStorage } from '@/utils/sessionStorage';
 import { useAuthCheck } from '@/hooks/auth/useAuthCheck';
@@ -14,9 +13,20 @@ const Header = ({ isLive, listenerCount }: HeaderProps) => {
 
     return (
         <nav className="relative flex items-center justify-center mt-[10%] py-3 w-full">
-            <div className="absolute left-0" onClick={() => navigate("/home")}>
-                <IconHome />
-            </div>
+            <button
+                className="
+                    absolute left-0 p-2 rounded-md
+                    transition-colors duration-200
+                    group
+                    text-[#979797] 
+                    hover:text-main 
+                    focus:text-main 
+                    active:text-main-focus
+                "
+                onClick={() => navigate("/home")}
+            >
+                <IconHome className="pointer-events-none hover:outline hover:outline-main" />
+            </button>
             <div className="flex-1 flex-row w-full text-center justify-center items-center inline-block">
                 <h1 className={`text-text-medium-sm font-bold text-center transition-colors duration-300 text-main`}>
                     {`${getSessionStorage()?.nickname}님${isLive ? '과' : '은'}`}
