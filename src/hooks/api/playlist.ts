@@ -1,8 +1,10 @@
-import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
-import { useDebouncedMutation } from "@/hooks/react-query/useDebouncedMutation";
-import { getPlaylist, getPlaylistMeta, postPlaylistNowPlaying } from "@/api/playlist";
-import { deleteVideo } from "@/api/video";
-import { Video } from "@/types/video";
+import { useSuspenseQuery, useQueryClient } from '@tanstack/react-query';
+import { useDebouncedMutation } from '@/hooks/react-query/useDebouncedMutation';
+import { getPlaylist, getPlaylistMeta, postPlaylistNowPlaying } from '@/api/playlist';
+import { deleteVideo } from '@/api/video';
+import { Video } from '@/types/video';
+import { usePlaylistContext } from '@/providers/PlaylistProvider';
+import { useEffect } from 'react';
 
 interface UsePlaylistMetaResult {
   thumbnailUrl: string;
@@ -10,7 +12,7 @@ interface UsePlaylistMetaResult {
 
 export const usePlaylistMeta = (playlistCode: string): UsePlaylistMetaResult => {
   const { data } = useSuspenseQuery({
-    queryKey: ["playlistMeta", playlistCode],
+    queryKey: ['playlistMeta', playlistCode],
     queryFn: () => getPlaylistMeta(playlistCode),
   });
 
@@ -19,15 +21,17 @@ export const usePlaylistMeta = (playlistCode: string): UsePlaylistMetaResult => 
 
 interface UsePlaylistVideosResult {
   videoList: Video[];
-  nowPlayingIndex: number;
-  setNowPlayingIndex: (index: number) => void;
 }
 
 export const usePlaylistVideos = (playlistCode: string): UsePlaylistVideosResult => {
-  const queryClient = useQueryClient();
+  const { dispatch } = usePlaylistContext();
+
+  const findVideoIndex = (videoCode: string, videoList: Video[]) => {
+    return videoList.findIndex((video) => video.code === videoCode) ?? 0;
+  };
 
   const { data } = useSuspenseQuery({
-    queryKey: ["playlist", playlistCode],
+    queryKey: ['playlist', playlistCode],
     queryFn: () => getPlaylist(playlistCode),
     retry: 1,
     refetchOnWindowFocus: true,
@@ -35,23 +39,14 @@ export const usePlaylistVideos = (playlistCode: string): UsePlaylistVideosResult
   });
 
   const videoList: Video[] = data.result.videoList ?? [];
-  const nowPlayingIndex =
-    videoList.findIndex((v) => v.code === data.result.nowPlayingVideoCode) ?? 0;
 
-  const setNowPlayingIndex = (index: number) => {
-    queryClient.setQueryData(["playlist", playlistCode], (oldData: any) => {
-      if (!oldData) return oldData;
-      return {
-        ...oldData,
-        result: {
-          ...oldData.result,
-          nowPlayingVideoCode: videoList[index]?.code,
-        },
-      };
-    });
-  };
+  useEffect(() => {
+    const nowPlayingVideoCode = data.result.nowPlayingVideoCode;
+    const nowPlayingIndex = findVideoIndex(nowPlayingVideoCode, videoList);
+    dispatch({ type: 'SET_INDEX', index: nowPlayingIndex });
+  }, []);
 
-  return { videoList, nowPlayingIndex, setNowPlayingIndex };
+  return { videoList };
 };
 
 interface UsePlaylistActionsResult {
@@ -62,33 +57,20 @@ interface UsePlaylistActionsResult {
 export const usePlaylistActions = (playlistCode: string): UsePlaylistActionsResult => {
   const queryClient = useQueryClient();
 
-  const { mutateAsync: playNext } = useDebouncedMutation(
-    {
-      mutationFn: ({
-        videoCode,
-        isAuto = false,
-      }: {
-        videoCode: string;
-        isAuto?: boolean;
-      }) => postPlaylistNowPlaying(playlistCode, videoCode, isAuto),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["playlist", playlistCode] });
-      },
+  const { mutateAsync: playNext } = useDebouncedMutation({
+    mutationFn: ({ videoCode, isAuto = false }: { videoCode: string; isAuto?: boolean }) =>
+      postPlaylistNowPlaying(playlistCode, videoCode, isAuto),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['playlist', playlistCode] });
     },
-    500,
-    true
-  );
+  });
 
-  const { mutateAsync: removeVideo } = useDebouncedMutation(
-    {
-      mutationFn: ({ videoCode }: { videoCode: string }) => deleteVideo(playlistCode, videoCode),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["playlist", playlistCode] });
-      },
+  const { mutateAsync: removeVideo } = useDebouncedMutation({
+    mutationFn: ({ videoCode }: { videoCode: string }) => deleteVideo(playlistCode, videoCode),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['playlist', playlistCode] });
     },
-    500,
-    true
-  );
+  });
 
   return { playNext, removeVideo };
 };

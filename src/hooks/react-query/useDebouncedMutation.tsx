@@ -3,8 +3,8 @@ import { useCallback, useRef } from "react";
 
 export function useDebouncedMutation<TData, TError, TVariables, TContext>(
     options: UseMutationOptions<TData, TError, TVariables, TContext>,
-    delay: number,
-    immediate: boolean,
+    delay: number = 500,
+    immediate: boolean = true,
     queryClient?: QueryClient,
 ) {
     const mutation = useMutation<TData, TError, TVariables, TContext>(options, queryClient);

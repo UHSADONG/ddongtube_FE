@@ -1,7 +1,7 @@
 import Card from '@/components/common/card';
 
 type VideoDescriptionProps = {
-    description: string | undefined;
+    description?: string | undefined;
 }
 
 const VideoDescription = ({

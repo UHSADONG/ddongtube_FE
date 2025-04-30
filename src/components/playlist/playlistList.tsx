@@ -46,6 +46,7 @@ const PlaylistList = ({
             {videoList.length > 0 ? (
                 videoList.map((video, index) => (
                     <Card
+                        key={video.code}
                         className={`playlist-card transition-all duration-300 border-[1px] ${videoList[currentIndex]?.code === video.code ? "border-main" : "border-stroke-2"
                             }`}
                         onClick={isDeleteMode ? () => openSuccessToast("편집 중에는 영상을 변경할 수 없습니다.") : () => handleNextVideo(index)}

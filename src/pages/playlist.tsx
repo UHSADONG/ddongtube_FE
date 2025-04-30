@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import React, { useCallback } from "react";
 
 import { useAuthCheck } from "@/hooks/auth/useAuthCheck";
 
@@ -33,14 +33,14 @@ const Playlist = () => {
 
     usePlaylistSSE({ playlistCode, accessToken });
 
-    const handleNextVideo = useCallback((touchedIndex: number = -1, isAuto = false) => {
+    const handleNextVideo = useCallback((touchedIndex: number = -1, isAutoPlay = false) => {
         const nextVideo = touchedIndex === -1
             ? videoList[(currentIndex + 1) % videoList.length]
             : videoList[touchedIndex];
 
         if (!nextVideo) return;
 
-        playNext({ videoCode: nextVideo.code, isAuto }).then(() => {
+        playNext({ videoCode: nextVideo.code, isAuto: isAutoPlay }).then(() => {
             if (!isLive) {
                 const nextIndex = touchedIndex === -1
                     ? (currentIndex + 1) % videoList.length

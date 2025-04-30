@@ -7,12 +7,22 @@ import { extractYoutubeVideoId } from '@/utils/youtube';
 import { Video } from '@/types/video';
 
 type VideoPlayerProps = {
-    currentVideo: Video;
+    currentVideo: Video | undefined;
     thumbnailUrl: string;
     handleNextVideo: (index?: number, isAutoPlay?: boolean) => void;
 }
 
 const VideoPlayer = ({ currentVideo, thumbnailUrl, handleNextVideo }: VideoPlayerProps) => {
+
+    if (!currentVideo) {
+        return (
+            <section className="flex flex-col items-start justify-center w-full mt-3 mb-8">
+                <ImageViewer src={thumbnailUrl} />
+                <VideoTitle />
+                <VideoDescription />
+            </section>
+        );
+    }
 
     const { url = "", title = "", description = "" } = currentVideo;
 
@@ -34,9 +44,9 @@ const VideoPlayer = ({ currentVideo, thumbnailUrl, handleNextVideo }: VideoPlaye
             />
             <VideoDescription
                 description={description}
-            ></VideoDescription>
+            />
         </section>
     )
 }
 
-export default VideoPlayer
+export default VideoPlayer;
