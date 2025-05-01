@@ -10,8 +10,9 @@ import { useDebouncedMutation } from "@/hooks/react-query/useDebouncedMutation";
 import { postUser } from "@/api/user";
 import { PostUserResponse } from "@/api/type/response/user";
 import { ApiError } from "@/error/apiError";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { getPlaylistMetaPublic } from "@/api/playlist";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { getPlaylistHealth, getPlaylistMetaPublic } from "@/api/playlist";
+import { useEffect } from "react";
 
 const StartGuest = () => {
 
@@ -21,6 +22,11 @@ const StartGuest = () => {
 
     const navigate = useNavigate();
 
+    if (!playlistCode) {
+        navigate("/error/PNF", { replace: true });
+        return null;
+    }
+
     const removeSessionStorageAsync = async () => {
         return new Promise((resolve) => {
             removeSessionStorage();
@@ -28,17 +34,33 @@ const StartGuest = () => {
         })
     }
 
-    const { data, isError, error } = useSuspenseQuery({
+    // check playlist health
+    const { data: playlistHealth } = useSuspenseQuery({
+        queryKey: ["playlistHealth", playlistCode],
+        queryFn: async () => {
+            const result = await getPlaylistHealth(playlistCode!);
+            return result ?? null;
+        }
+    })
+
+    useEffect(() => {
+        if (playlistHealth?.result.health === "NOT_EXIST") {
+            navigate("/error/PNF", { replace: true });
+        }
+    }, [playlistHealth, navigate]);
+
+    const { data, isError, error } = useQuery({
         queryKey: ["playlistMetaPublic", playlistCode],
         queryFn: async () => {
             const result = await removeSessionStorageAsync().then(() => getPlaylistMetaPublic(playlistCode!));
             return result ?? null;
         },
         retry: 1,
-        staleTime: 0
+        staleTime: 0,
+        enabled: !!playlistHealth?.result.health && playlistHealth?.result.health === "ACTIVE"
     });
 
-    const { title, thumbnailUrl, description } = data.result;
+    const { title, thumbnailUrl, description } = data?.result ?? { title: "", thumbnailUrl: "", description: "" };
     const { form, errors, setErrorsState, onChange } = useStartForm();
 
     const { mutateAsync, } = useDebouncedMutation({
