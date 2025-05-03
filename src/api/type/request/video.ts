@@ -7,6 +7,5 @@ export type PatchPlaylistPriorityRequest = {
   playlistCode: string;
   videoCode: string;
   targetVideoCode: string;
-  priority: number;
   positionBefore: boolean;
 };

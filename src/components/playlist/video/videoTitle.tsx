@@ -1,21 +1,18 @@
 import React from 'react'
 import PlaylistDescription from '@/components/common/playlistDescription';
 import PlayNext from '@/assets/playlist/ic_play_next.svg?react';
-import { usePlaylistContext } from '@/providers/PlaylistProvider';
 
 type VideoTitleProps = {
     title?: string | undefined;
     description?: string | undefined;
-    handleNextVideo: (index?: number, isAutoPlay?: boolean) => void;
+    handleNextVideo?: (index?: number, isAutoPlay?: boolean) => void;
 }
 
 const VideoTitle = ({
     title,
     description,
-    handleNextVideo
+    handleNextVideo = () => { }
 }: VideoTitleProps) => {
-
-    const { currentIndex } = usePlaylistContext();
 
     return (
         <div className="flex flex-row items-end justify-center w-full my-3">
@@ -31,7 +28,7 @@ const VideoTitle = ({
                     hover:text-main
                     active:text-main-focus
                 "
-                onClick={() => handleNextVideo() ?? (() => { })}>
+                onClick={() => handleNextVideo(-1, false)}>
                 <PlayNext />
             </button>
         </div>
