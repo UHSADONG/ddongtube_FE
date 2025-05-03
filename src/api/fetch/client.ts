@@ -1,14 +1,14 @@
-import { ApiError } from "@/error/apiError";
+import { ApiError } from '@/error/apiError';
 import * as Sentry from '@sentry/react';
-import { getSessionStorage } from "@/utils/sessionStorage";
+import { getSessionStorage } from '@/utils/sessionStorage';
 
 const baseURL = import.meta.env.VITE_REACT_SERVER_BASE_URL;
 
 async function handleResponse<T>(response: Response): Promise<T | boolean> {
-    if (!response.ok) {
-    const contentType = response.headers.get("content-type");
+  if (!response.ok) {
+    const contentType = response.headers.get('content-type');
     let parsedResponse = null;
-    if (contentType?.includes("application/json")) {
+    if (contentType?.includes('application/json')) {
       parsedResponse = await response.json();
     }
 
@@ -16,13 +16,12 @@ async function handleResponse<T>(response: Response): Promise<T | boolean> {
     const code = parsedResponse?.code || `HTTP_${response.status}`;
     throw new ApiError(response.status, response.statusText, message, code, parsedResponse);
   }
-  const contentType = response.headers.get("content-type");
-  if (contentType?.includes("application/json")) {
+  const contentType = response.headers.get('content-type');
+  if (contentType?.includes('application/json')) {
     return response.json() as Promise<T>;
   }
   return true;
 }
-
 
 async function request<T>(url: string, options: RequestInit): Promise<T> {
   if (import.meta.env.DEV) {
@@ -44,21 +43,21 @@ async function request<T>(url: string, options: RequestInit): Promise<T> {
   } catch (error: unknown) {
     console.log(error);
     Sentry.withScope((scope) => {
-      scope.setContext("fetch", {
+      scope.setContext('fetch', {
         url,
         ...options,
       });
       if (error instanceof ApiError) {
-        scope.setTag("errorType", error.name);
-        scope.setTag("errorCode", error.code);
-        scope.setExtra("requestUrl", url);
-        scope.setExtra("requestOptions", options);
+        scope.setTag('errorType', error.name);
+        scope.setTag('errorCode', error.code);
+        scope.setExtra('requestUrl', url);
+        scope.setExtra('requestOptions', options);
         Sentry.captureException(error);
       } else {
-        scope.setTag("errorType", "UnknownError");
-        scope.setTag("errorCode", "UNE000");
-        scope.setExtra("requestUrl", url);
-        scope.setExtra("requestOptions", options);
+        scope.setTag('errorType', 'UnknownError');
+        scope.setTag('errorCode', 'UNE000');
+        scope.setExtra('requestUrl', url);
+        scope.setExtra('requestOptions', options);
         Sentry.captureException(error);
       }
     });
@@ -74,44 +73,44 @@ export async function getFetch<T>(
     ? `?${new URLSearchParams(
         Object.entries(params).map(([key, value]) => [key, String(value)]),
       ).toString()}`
-    : "";
-  return request<T>(`${url}${queryString}`, { method: "GET" });
+    : '';
+  return request<T>(`${url}${queryString}`, { method: 'GET' });
 }
 
-export async function postFetch<T,K>(
+export async function postFetch<T, K>(
   url: string,
   body?: Record<string, K | K[]> | K,
 ): Promise<T | boolean> {
   return request<T | boolean>(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
 }
 
-export async function postFormFetch<T>(
-  url: string,
-  formData: FormData
-): Promise<T | boolean> {
+export async function postFormFetch<T>(url: string, formData: FormData): Promise<T | boolean> {
   return request<T | boolean>(url, {
-    method: "POST",
+    method: 'POST',
     body: formData,
   });
 }
 
-export async function putFetch<T, K>(
-  url: string,
-  body?: Record<string, K>,
-): Promise<T> {
+export async function putFetch<T, K>(url: string, body?: Record<string, K>): Promise<T> {
   return request<T>(url, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
 }
 
-export async function deleteFetch<T>(
-    url: string
-): Promise<T> {
-    return request<T>(url, { method: "DELETE" });
+export async function patchFetch<T, K>(url: string, body?: Record<string, K> | K): Promise<T> {
+  return request<T>(url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function deleteFetch<T>(url: string): Promise<T> {
+  return request<T>(url, { method: 'DELETE' });
 }

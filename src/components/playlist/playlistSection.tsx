@@ -8,13 +8,11 @@ import { Video } from '@/types/video';
 type PlaylistSectionProps = {
     videoList: Video[];
     openSuccessToast: (message: string) => void;
-    handleNextVideo: (index?: number, isAutoPlay?: boolean) => void;
 }
 
 const PlaylistSection = ({
     videoList,
     openSuccessToast,
-    handleNextVideo
 }: PlaylistSectionProps) => {
     return (
         <div className="flex flex-col items-start justify-center w-full">
@@ -22,7 +20,7 @@ const PlaylistSection = ({
             <PlaylistList
                 videoList={videoList}
                 openSuccessToast={openSuccessToast}
-                handleNextVideo={handleNextVideo} />
+            />
             <PlaylistFooter />
         </div>
     )

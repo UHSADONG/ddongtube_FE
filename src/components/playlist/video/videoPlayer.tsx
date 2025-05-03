@@ -1,3 +1,4 @@
+import React from 'react';
 import YoutubeEmbedPlayer from '@/components/youtube/youtubeEmbedPlayer';
 import ImageViewer from '@/components/common/imageViewer';
 import VideoTitle from '@/components/playlist/video/videoTitle';

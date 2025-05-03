@@ -1,7 +1,8 @@
+import React from 'react';
 import { createContext, useReducer, useContext, ReactNode, useEffect } from 'react';
 
 interface PlaylistState {
-  currentIndex: number;
+  currentVideoCode: string | null;
   isLive: boolean;
   listenerCount: number;
   isDeleteMode: boolean;
@@ -9,7 +10,7 @@ interface PlaylistState {
 }
 
 const initialState: PlaylistState = {
-  currentIndex: 0,
+  currentVideoCode: null,
   isLive: false,
   listenerCount: 0,
   isDeleteMode: false,
@@ -18,7 +19,7 @@ const initialState: PlaylistState = {
 
 
 type PlaylistAction =
-  | { type: 'SET_INDEX'; index: number }
+  | { type: 'SET_CURRENT_VIDEO_CODE'; videoCode: string }
   | { type: 'SET_LIVE'; live: boolean }
   | { type: 'SET_LISTENER'; listenerCount: number }
   | { type: 'TOGGLE_DELETE_MODE' }
@@ -26,8 +27,8 @@ type PlaylistAction =
 
 const playlistReducer = (state: PlaylistState, action: PlaylistAction): PlaylistState => {
   switch (action.type) {
-    case 'SET_INDEX':
-      return { ...state, currentIndex: action.index };
+    case 'SET_CURRENT_VIDEO_CODE':
+      return { ...state, currentVideoCode: action.videoCode };
     case 'SET_LIVE':
       return { ...state, isLive: action.live };
     case 'SET_LISTENER':
@@ -51,11 +52,10 @@ const PlaylistContext = createContext<PlaylistContextProps | undefined>(undefine
 export const PlaylistProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(playlistReducer, initialState);
 
-  // currentIndex 로그
+  // currentVideoCode 로그
   useEffect(() => {
-    console.log('Current Index:', state.currentIndex);
-  }
-    , [state.currentIndex]);
+    console.log('Current Video Code:', state.currentVideoCode);
+  }, [state.currentVideoCode]);
 
   return (
     <PlaylistContext.Provider value={{ ...state, dispatch }}>
