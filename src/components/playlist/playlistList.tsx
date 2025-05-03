@@ -8,7 +8,7 @@ import { DndContext, closestCenter, useSensor, useSensors, PointerSensor } from 
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import autoAnimate from '@formkit/auto-animate';
 import { useSortablePlaylist } from '@/hooks/playlist/useSortablePlaylist';
-import SortableItem from '@/components/playlist/SortableItem';
+import SortableItem from '@/components/playlist/sortableItem';
 
 type PlaylistListProps = {
     videoList: Video[];
