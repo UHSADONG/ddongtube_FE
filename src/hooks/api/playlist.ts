@@ -26,10 +26,6 @@ interface UsePlaylistVideosResult {
 export const usePlaylistVideos = (playlistCode: string): UsePlaylistVideosResult => {
   const { dispatch } = usePlaylistContext();
 
-  const findVideoIndex = (videoCode: string, videoList: Video[]) => {
-    return videoList.findIndex((video) => video.code === videoCode) ?? 0;
-  };
-
   const { data } = useSuspenseQuery({
     queryKey: ['playlist', playlistCode],
     queryFn: () => getPlaylist(playlistCode),
@@ -42,8 +38,7 @@ export const usePlaylistVideos = (playlistCode: string): UsePlaylistVideosResult
 
   useEffect(() => {
     const nowPlayingVideoCode = data.result.nowPlayingVideoCode;
-    const nowPlayingIndex = findVideoIndex(nowPlayingVideoCode, videoList);
-    dispatch({ type: 'SET_INDEX', index: nowPlayingIndex });
+    dispatch({ type: 'SET_CURRENT_VIDEO_CODE', videoCode: nowPlayingVideoCode });
   }, []);
 
   return { videoList };

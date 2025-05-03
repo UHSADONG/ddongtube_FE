@@ -10,7 +10,6 @@ interface UsePlaylistSSEProps {
 }
 
 export const usePlaylistSSE = ({ playlistCode, accessToken }: UsePlaylistSSEProps) => {
-    
   const queryClient = useQueryClient();
   const { dispatch } = usePlaylistContext();
 
@@ -47,7 +46,9 @@ export const usePlaylistSSE = ({ playlistCode, accessToken }: UsePlaylistSSEProp
 
         if (data.status === 'DELETE') {
           queryClient.setQueryData(['playlist', playlistCode], (oldData: any) => {
-            const updatedList = oldData.result.videoList.filter((v: any) => v.code !== data.videoCode);
+            const updatedList = oldData.result.videoList.filter(
+              (v: any) => v.code !== data.videoCode,
+            );
             return {
               ...oldData,
               result: { ...oldData.result, videoList: updatedList },
@@ -58,6 +59,28 @@ export const usePlaylistSSE = ({ playlistCode, accessToken }: UsePlaylistSSEProp
         if (data.status === 'ADD') {
           queryClient.setQueryData(['playlist', playlistCode], (oldData: any) => {
             const updatedList = [...oldData.result.videoList, data.video];
+            return {
+              ...oldData,
+              result: { ...oldData.result, videoList: updatedList },
+            };
+          });
+        }
+
+        if (data.status === 'MOVE' && data.videoCode && typeof data.priority === 'number') {
+          queryClient.setQueryData(['playlist', playlistCode], (oldData: any) => {
+            if (!oldData?.result?.videoList) return oldData;
+
+            const currentList = oldData.result.videoList;
+            const currentPriority = currentList.find(
+              (v: any) => v.code === data.videoCode,
+            )?.priority;
+
+            if (currentPriority === data.priority) return oldData;
+
+            const updatedList = currentList
+              .map((v: any) => (v.code === data.videoCode ? { ...v, priority: data.priority } : v))
+              .sort((a: any, b: any) => a.priority - b.priority);
+
             return {
               ...oldData,
               result: { ...oldData.result, videoList: updatedList },
@@ -79,14 +102,14 @@ export const usePlaylistSSE = ({ playlistCode, accessToken }: UsePlaylistSSEProp
             };
           });
 
-        const oldData: any = queryClient.getQueryData(['playlist', playlistCode]);
-        if (oldData) {
+          const oldData: any = queryClient.getQueryData(['playlist', playlistCode]);
+          if (oldData) {
             const videoList = oldData.result.videoList ?? [];
             const foundIndex = videoList.findIndex((v: any) => v.code === data.videoCode);
             if (foundIndex !== -1) {
-                dispatch({ type: 'SET_INDEX', index: foundIndex });
+              dispatch({ type: 'SET_CURRENT_VIDEO_CODE', videoCode: data.videoCode });
             }
-        }
+          }
         }
       });
 
