@@ -9,6 +9,7 @@ export function useSortablePlaylist({
   patchPlaylistPriority,
   playlistCode,
   openSuccessToast,
+  isAdmin,
 }: {
   videoList: Video[];
   patchPlaylistPriority: (
@@ -16,6 +17,7 @@ export function useSortablePlaylist({
   ) => Promise<PatchPlaylistPriorityResponse>;
   playlistCode: string;
   openSuccessToast: (msg: string) => void;
+  isAdmin: boolean;
 }) {
   const [localVideoList, setLocalVideoList] = useState<Video[]>(videoList);
 
@@ -25,6 +27,10 @@ export function useSortablePlaylist({
 
   const handleDragEnd = useCallback(
     async (event: DragEndEvent) => {
+      if (!isAdmin) {
+        openSuccessToast('관리자만 순서를 변경할 수 있습니다.');
+        return;
+      }
       const { active, over } = event;
       if (!over || active.id === over.id) return;
 
@@ -47,7 +53,7 @@ export function useSortablePlaylist({
         openSuccessToast('순서 변경에 실패했습니다.');
       }
     },
-    [localVideoList, videoList, patchPlaylistPriority, playlistCode, openSuccessToast],
+    [localVideoList, videoList, patchPlaylistPriority, playlistCode, openSuccessToast, isAdmin],
   );
 
   return [localVideoList, handleDragEnd, setLocalVideoList] as const;
