@@ -66,10 +66,11 @@ const SortableItem = ({
                     <div className="relative w-6 h-6 overflow-hidden flex items-center">
                         <IconDelete
                             className={`
-                absolute top-0 left-0
-                ${isDeleteMode ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
-              `}
-                            onClick={(e) => handleVideoDelete(e, video)}
+                                absolute top-0 left-0
+                                ${isDeleteMode ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
+                            `}
+                            style={{ zIndex: 2, cursor: 'pointer', pointerEvents: 'auto' }}
+                            onClick={e => handleVideoDelete(e, video)}
                         />
                         <span
                             {...listeners}
@@ -82,13 +83,15 @@ const SortableItem = ({
                                 position: 'relative',
                                 cursor: 'grab',
                                 touchAction: 'none',
+                                zIndex: 1,
+                                pointerEvents: isDeleteMode ? 'none' : 'auto',
                             }}
                         >
                             <IconHamburgerDisabled
                                 className={`
-                  absolute top-0 left-0
-                  ${isDeleteMode ? 'translate-x-full opacity-0' : 'translate-x-0 opacity-100'}
-                `}
+                                    absolute top-0 left-0
+                                    ${isDeleteMode ? 'translate-x-full opacity-0' : 'translate-x-0 opacity-100'}
+                                `}
                                 color={hamburgerColor}
                                 onMouseDown={() => setIsHamburgerActive(true)}
                                 onMouseUp={() => setIsHamburgerActive(false)}
