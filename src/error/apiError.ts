@@ -1,11 +1,19 @@
+import { HttpErrorStatus } from '@/types/error';
+
 export class ApiError<T = unknown> extends Error {
-  status: number;
+  status: HttpErrorStatus | number;
   statusText: string;
-  message : string;
-  code : string;
+  message: string;
+  code: string;
   response: T | null;
 
-  constructor(status: number, statusText: string, message:string, code:string, response: T | null) {
+  constructor(
+    status: HttpErrorStatus,
+    statusText: string,
+    message: string,
+    code: string,
+    response: T | null,
+  ) {
     super(`Unexpected Error: ${status} ${statusText}`);
     this.status = status;
     this.statusText = statusText;
@@ -15,28 +23,28 @@ export class ApiError<T = unknown> extends Error {
 
     switch (status) {
       case 400:
-        this.name = "ApiBadRequestError";
+        this.name = 'ApiBadRequestError';
         break;
       case 401:
-        this.name = "ApiUnauthorizedError";
+        this.name = 'ApiUnauthorizedError';
         break;
       case 403:
-        this.name = "ApiForbiddenError";
+        this.name = 'ApiForbiddenError';
         break;
       case 404:
-        this.name = "ApiNotFoundError";
+        this.name = 'ApiNotFoundError';
         break;
       case 413:
-        this.name = "ApiRequestEntityTooLargeError";
+        this.name = 'ApiRequestEntityTooLargeError';
         break;
       case 429:
-        this.name = "ApiTooManyRequestsError";
+        this.name = 'ApiTooManyRequestsError';
         break;
       case 500:
-        this.name = "ApiInternalServerError";
+        this.name = 'ApiInternalServerError';
         break;
       default:
-        this.name = "ApiError";
+        this.name = 'ApiError';
     }
   }
 }

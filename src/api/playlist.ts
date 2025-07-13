@@ -1,5 +1,5 @@
 import { deleteFetch, getFetch, postFetch, postFormFetch } from '@/api/fetch/client';
-import { transformPlaylistThumbnail, transformPlaylist } from '@/api/transformer/playlist';
+import { transformPlaylist, transformPlaylistThumbnail } from '@/api/transformer/playlist';
 import { PostPlaylistRequest, PostPlaylistThumbnailRequest } from '@/api/type/request/playlist';
 import {
   GetPlaylistHealthResponse,
@@ -52,12 +52,12 @@ export const postPlaylistNowPlaying = (
   playlistCode: string,
   videoCode: string,
   isAuto: boolean = false,
-): Promise<boolean | {}> => {
+): Promise<boolean | object> => {
   return postFetch<boolean, string>(
     `/playlist/${playlistCode}/now-playing?videoCode=${videoCode}&autoPlay=${isAuto}`,
   ).then((res) => res ?? false);
 };
 
-export const deletePlaylist = (playlistCode: string): Promise<boolean | {}> => {
+export const deletePlaylist = (playlistCode: string): Promise<boolean | object> => {
   return deleteFetch(`/playlist/${playlistCode}`).then((res) => res ?? false);
 };

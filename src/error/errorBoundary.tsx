@@ -3,20 +3,16 @@ import React, { Component } from 'react';
 import { Navigate } from 'react-router';
 import { ApiError } from '@/error/apiError';
 
-interface ErrorBoundaryProps {
-
-}
-
 interface ErrorBoundaryState {
     hasError: boolean;
     isApiError: boolean;
 }
 
 export default class ErrorBoundary extends Component<
-    React.PropsWithChildren<ErrorBoundaryProps>,
+    React.PropsWithChildren<unknown>,
     ErrorBoundaryState
 > {
-    constructor(props: React.PropsWithChildren<ErrorBoundaryProps>) {
+    constructor(props: React.PropsWithChildren<unknown>) {
         super(props);
         this.state = {
             isApiError: false,
