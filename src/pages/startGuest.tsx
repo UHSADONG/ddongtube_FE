@@ -1,7 +1,7 @@
 import Button from "@/components/common/button"
 import Input from "@/components/common/input"
 import { useStartForm } from "@/hooks/form/useStartForm";
-import { ResponsiveContainer } from "@/container/responsiveContainer";
+import { ResponsiveContainer } from "@/components/container/responsiveContainer";
 import { addSessionStorage, removeSessionStorage, setSessionStorage } from "@/utils/sessionStorage";
 import { useNavigate, useParams } from "react-router";
 import ImageViewer from "@/components/common/imageViewer";
@@ -49,7 +49,7 @@ const StartGuest = () => {
         }
     }, [playlistHealth, navigate]);
 
-    const { data, isError, error } = useQuery({
+    const { data } = useQuery({
         queryKey: ["playlistMetaPublic", playlistCode],
         queryFn: async () => {
             const result = await removeSessionStorageAsync().then(() => getPlaylistMetaPublic(playlistCode!));
@@ -63,7 +63,7 @@ const StartGuest = () => {
     const { title, thumbnailUrl, description } = data?.result ?? { title: "", thumbnailUrl: "", description: "" };
     const { form, errors, setErrorsState, onChange } = useStartForm();
 
-    const { mutateAsync, } = useDebouncedMutation({
+    const { mutateAsync } = useDebouncedMutation({
         mutationFn: async ({ nickname, password }: { nickname: string; password: string }) => {
             try {
                 return await postUser(playlistCode!, { name: nickname, password })

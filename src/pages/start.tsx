@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import Button from "@/components/common/button"
 import Input from "@/components/common/input"
 
-import { ResponsiveContainer } from "@/container/responsiveContainer";
+import { ResponsiveContainer } from "@/components/container/responsiveContainer";
 
 import { useStartForm } from "@/hooks/form/useStartForm";
 

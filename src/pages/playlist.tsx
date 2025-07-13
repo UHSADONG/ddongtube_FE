@@ -5,7 +5,7 @@ import { useAuthCheck } from "@/hooks/auth/useAuthCheck";
 import FloatingButton from "@/components/common/floatingButton";
 import PlaylistAddMusicModal from "@/components/modal/playlistAddModal";
 
-import { ResponsiveContainer } from "@/container/responsiveContainer";
+import { ResponsiveContainer } from "@/components/container/responsiveContainer";
 
 import { useToast } from "@/hooks/useToast";
 import { usePlaylistSSE } from "@/hooks/sse/usePlaylistSSE";
