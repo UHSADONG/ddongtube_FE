@@ -1,5 +1,5 @@
-import './sentry/instruments.ts'
-import { SENTRY_CONFIG } from './sentry/config.ts';
+import './lib/sentry/instruments.ts'
+import { SENTRY_CONFIG } from './lib/sentry/config.ts';
 
 import { createRoot } from 'react-dom/client'
 

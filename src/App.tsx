@@ -5,7 +5,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from "@vercel/speed-insights/react"
 
 import { queryClientConfig } from '@/config/queryClient'
-import { SentryRoutes } from '@/sentry/routes';
+import { SentryRoutes } from '@/lib/sentry/routes';
 
 import Start from '@/pages/start';
 import Create from '@/pages/create';
@@ -19,6 +19,7 @@ import Loading from '@/pages/loading';
 import StartGuest from '@/pages/startGuest';
 import ErrorBoundary from '@/error/errorBoundary';
 import { PlaylistProvider } from './providers/PlaylistProvider';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 const queryClient = new QueryClient(queryClientConfig);
 
@@ -51,6 +52,7 @@ function App() {
           </SentryRoutes>
         </Suspense>
       </ErrorBoundary>
+      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={true} />}
     </QueryClientProvider >
   )
 }

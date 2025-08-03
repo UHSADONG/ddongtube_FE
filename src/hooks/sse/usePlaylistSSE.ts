@@ -45,7 +45,7 @@ export const usePlaylistSSE = ({ playlistCode, accessToken }: UsePlaylistSSEProp
         const data = JSON.parse(message.data);
 
         if (data.status === 'DELETE') {
-          queryClient.setQueryData(['playlist', playlistCode], (oldData: any) => {
+          queryClient.setQueryData(['playlist', playlistCode], (oldData :any) => {
             const updatedList = oldData.result.videoList.filter(
               (v: any) => v.code !== data.videoCode,
             );

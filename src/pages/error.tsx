@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router";
 
-import { ResponsiveContainer } from "@/container/responsiveContainer";
+import { ResponsiveContainer } from "@/components/container/responsiveContainer";
 
 import RoundButton from "@/components/common/roundButton";
 
@@ -36,7 +36,7 @@ const Error = () => {
                 navigate("/", { replace: true });
                 break;
             default:
-                navigate("/"), { replace: true };
+                navigate("/", { replace: true });
                 break;
         }
     }

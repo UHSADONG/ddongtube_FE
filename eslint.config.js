@@ -5,9 +5,14 @@ import tseslint from 'typescript-eslint';
 import pluginReact from 'eslint-plugin-react';
 
 export default defineConfig([
-  { files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'] },
-  { files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'], languageOptions: { globals: globals.browser } },
-  { files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'], plugins: { js }, extends: ['js/recommended'] },
+  {
+    files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'],
+    languageOptions: { globals: globals.browser },
+    plugins: { js },
+    extends: ['js/recommended'],
+  },
+  tseslint.configs.recommended,
+  pluginReact.configs.flat.recommended,
   {
     files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'],
     rules: {
@@ -15,6 +20,4 @@ export default defineConfig([
       'react/jsx-uses-react': 'off',
     },
   },
-  tseslint.configs.recommended,
-  pluginReact.configs.flat.recommended,
 ]);

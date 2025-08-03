@@ -1,5 +1,5 @@
 import React from 'react';
-import { createContext, useReducer, useContext, ReactNode, useEffect } from 'react';
+import { createContext, useReducer, useContext, ReactNode } from 'react';
 
 interface PlaylistState {
   currentVideoCode: string | null;
@@ -51,11 +51,6 @@ const PlaylistContext = createContext<PlaylistContextProps | undefined>(undefine
 
 export const PlaylistProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(playlistReducer, initialState);
-
-  // currentVideoCode 로그
-  useEffect(() => {
-    console.log('Current Video Code:', state.currentVideoCode);
-  }, [state.currentVideoCode]);
 
   return (
     <PlaylistContext.Provider value={{ ...state, dispatch }}>
