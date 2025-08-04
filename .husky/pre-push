@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "푸시 전 빌드 검증을 시작합니다..."
+
+# TypeScript 타입 체크
+echo "TypeScript 타입 체크 중..."
+npx tsc --noEmit
+
+if [ $? -ne 0 ]; then
+  echo "Error: TypeScript 타입 체크에 실패했습니다."
+  exit 1
+fi
+
+# ESLint 검사
+echo "ESLint 검사 중..."
+npm run lint
+
+if [ $? -ne 0 ]; then
+  echo "Error: ESLint 검사에 실패했습니다."
+  exit 1
+fi
+
+echo "푸시 전 검증이 완료되었습니다." 
