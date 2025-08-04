@@ -1,6 +1,6 @@
 import { ApiError } from '@/error/apiError';
-import * as Sentry from '@sentry/react';
 import { getSessionStorage } from '@/utils/sessionStorage';
+import * as Sentry from '@sentry/react';
 
 const baseURL = import.meta.env.VITE_REACT_SERVER_BASE_URL;
 
@@ -41,7 +41,7 @@ async function request<T>(url: string, options: RequestInit): Promise<T> {
     const response = await fetch(`${baseURL}${url}`, options);
     return handleResponse(response) as Promise<T>;
   } catch (error: unknown) {
-    console.log(error);
+    console.error(error);
     Sentry.withScope((scope) => {
       scope.setContext('fetch', {
         url,

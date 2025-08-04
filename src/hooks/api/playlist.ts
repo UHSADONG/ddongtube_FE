@@ -1,10 +1,11 @@
-import { useSuspenseQuery, useQueryClient } from '@tanstack/react-query';
-import { useDebouncedMutation } from '@/hooks/react-query/useDebouncedMutation';
+import { useEffect } from 'react';
+
 import { getPlaylist, getPlaylistMeta, postPlaylistNowPlaying } from '@/api/playlist';
 import { deleteVideo } from '@/api/video';
-import { Video } from '@/types/video';
+import { useDebouncedMutation } from '@/hooks/react-query/useDebouncedMutation';
 import { usePlaylistContext } from '@/providers/PlaylistProvider';
-import { useEffect } from 'react';
+import { Video } from '@/types/video';
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 
 interface UsePlaylistMetaResult {
   thumbnailUrl: string;
@@ -45,8 +46,8 @@ export const usePlaylistVideos = (playlistCode: string): UsePlaylistVideosResult
 };
 
 interface UsePlaylistActionsResult {
-  playNext: (args: { videoCode: string; isAuto?: boolean }) => Promise<boolean | {}>;
-  removeVideo: (args: { videoCode: string }) => Promise<boolean | {}>;
+  playNext: (args: { videoCode: string; isAuto?: boolean }) => Promise<boolean | object>;
+  removeVideo: (args: { videoCode: string }) => Promise<boolean | object>;
 }
 
 export const usePlaylistActions = (playlistCode: string): UsePlaylistActionsResult => {
