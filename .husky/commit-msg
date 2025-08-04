@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# 커밋 메시지가 비어있지 않은지 확인
+if [ -z "$(cat $1 | tr -d '\n')" ]; then
+  echo "Error: 커밋 메시지를 입력해주세요."
+  exit 1
+fi
+
+# 커밋 메시지 길이 확인 (최대 72자)
+commit_msg=$(cat $1 | head -n1)
+if [ ${#commit_msg} -gt 72 ]; then
+  echo "Error: 커밋 메시지 첫 줄은 72자를 초과할 수 없습니다."
+  echo "현재 길이: ${#commit_msg}자"
+  exit 1
+fi 

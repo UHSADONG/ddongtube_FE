@@ -1,146 +1,157 @@
-import Button from "@/components/common/button"
-import Input from "@/components/common/input"
-import { useStartForm } from "@/hooks/form/useStartForm";
-import { ResponsiveContainer } from "@/components/container/responsiveContainer";
-import { addSessionStorage, removeSessionStorage, setSessionStorage } from "@/utils/sessionStorage";
-import { useNavigate, useParams } from "react-router";
-import ImageViewer from "@/components/common/imageViewer";
-import PlaylistDescription from "@/components/common/playlistDescription";
-import { useDebouncedMutation } from "@/hooks/react-query/useDebouncedMutation";
-import { postUser } from "@/api/user";
-import { PostUserResponse } from "@/api/type/response/user";
-import { ApiError } from "@/error/apiError";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { getPlaylistHealth, getPlaylistMetaPublic } from "@/api/playlist";
-import { useEffect } from "react";
+import { useEffect } from 'react';
+
+import { getPlaylistHealth, getPlaylistMetaPublic } from '@/api/playlist';
+import { PostUserResponse } from '@/api/type/response/user';
+import { postUser } from '@/api/user';
+import Button from '@/components/common/button';
+import ImageViewer from '@/components/common/imageViewer';
+import Input from '@/components/common/input';
+import PlaylistDescription from '@/components/common/playlistDescription';
+import { ResponsiveContainer } from '@/components/container/responsiveContainer';
+import { ApiError } from '@/error/apiError';
+import { useStartForm } from '@/hooks/form/useStartForm';
+import { useDebouncedMutation } from '@/hooks/react-query/useDebouncedMutation';
+import { addSessionStorage, removeSessionStorage, setSessionStorage } from '@/utils/sessionStorage';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
+
+import { useNavigate, useParams } from 'react-router';
 
 const StartGuest = () => {
+  const params = useParams();
 
-    const params = useParams();
+  const { playlistCode } = params;
 
-    const { playlistCode } = params;
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
+  if (!playlistCode) {
+    navigate('/error/PNF', { replace: true });
+    return null;
+  }
 
-    if (!playlistCode) {
-        navigate("/error/PNF", { replace: true });
-        return null;
-    }
-
-    const removeSessionStorageAsync = async () => {
-        return new Promise((resolve) => {
-            removeSessionStorage();
-            resolve(true);
-        })
-    }
-
-    // check playlist health
-    const { data: playlistHealth } = useSuspenseQuery({
-        queryKey: ["playlistHealth", playlistCode],
-        queryFn: async () => {
-            const result = await getPlaylistHealth(playlistCode!);
-            return result ?? null;
-        }
-    })
-
-    useEffect(() => {
-        if (playlistHealth?.result.health === "NOT_EXIST") {
-            navigate("/error/PNF", { replace: true });
-        }
-    }, [playlistHealth, navigate]);
-
-    const { data } = useQuery({
-        queryKey: ["playlistMetaPublic", playlistCode],
-        queryFn: async () => {
-            const result = await removeSessionStorageAsync().then(() => getPlaylistMetaPublic(playlistCode!));
-            return result ?? null;
-        },
-        retry: 1,
-        staleTime: 0,
-        enabled: !!playlistHealth?.result.health && playlistHealth?.result.health === "ACTIVE"
+  const removeSessionStorageAsync = async () => {
+    return new Promise((resolve) => {
+      removeSessionStorage();
+      resolve(true);
     });
+  };
 
-    const { title, thumbnailUrl, description } = data?.result ?? { title: "", thumbnailUrl: "", description: "" };
-    const { form, errors, setErrorsState, onChange } = useStartForm();
+  // check playlist health
+  const { data: playlistHealth } = useSuspenseQuery({
+    queryKey: ['playlistHealth', playlistCode],
+    queryFn: async () => {
+      const result = await getPlaylistHealth(playlistCode!);
+      return result ?? null;
+    },
+  });
 
-    const { mutateAsync } = useDebouncedMutation({
-        mutationFn: async ({ nickname, password }: { nickname: string; password: string }) => {
-            try {
-                return await postUser(playlistCode!, { name: nickname, password })
-            } catch (error) {
-                if (error instanceof ApiError) {
-                    if (error.code === "USER001") {
-                        console.log(error.message);
-                        setErrorsState("password", error.message);
-                    }
-                }
-            }
-        }
-        ,
-        onSuccess: (data) => {
-            addSessionStorage("nickname", form.nickname);
-            if (data && "result" in data) {
-                addSessionStorage("isAdmin", String((data as PostUserResponse).result.isAdmin));
-            }
-        }
-    }, 500, true)
-
-    const onSubmit = async () => {
-        try {
-            const result = await mutateAsync({ nickname: form.nickname, password: form.password });
-            setSessionStorage({
-                accessToken: (result as PostUserResponse).result.accessToken,
-                playlistCode: playlistCode!
-            })
-            navigate("/home", { replace: true });
-        } catch (error) {
-            if (error instanceof ApiError) {
-                if (error.code === "PLAYLIST001") {
-                    navigate("/error/PNF", { replace: true });
-                }
-                else {
-                    navigate("/error", { replace: true });
-                }
-            }
-        }
+  useEffect(() => {
+    if (playlistHealth?.result.health === 'NOT_EXIST') {
+      navigate('/error/PNF', { replace: true });
     }
+  }, [playlistHealth, navigate]);
 
-    return (
-        <ResponsiveContainer>
-            <meta name="og:title" content={title} />
-            <meta name="og:description" content={description} />
-            <meta name="og:image" content={thumbnailUrl} />
-            <meta name="og:url" content={`${import.meta.env.VITE_REACT_SHARE_URL}/${playlistCode}`} />
-            <meta name="og:type" content="website" />
-            <meta name="og:site_name" content="딥플리" />
-            <meta name="og:locale" content="ko_KR" />
-            <section key={`${playlistCode}-image`} className="flex flex-col items-start justify-center mt-[10%] w-full">
-                <ImageViewer src={thumbnailUrl} />
-                <PlaylistDescription title={title} description={description} isCenter={true} />
-            </section>
-            <Input
-                label="닉네임"
-                type="text"
-                placeholder="닉네임을 입력하세요"
-                value={form.nickname}
-                onChange={onChange("nickname")}
-                isError={!!errors.nickname}
-                errorMessage={errors.nickname}
-                className="mt-8 mb-8"
-            />
-            <Input
-                label="비밀번호(선택)"
-                type="password"
-                placeholder="비밀번호를 입력하세요"
-                value={form.password}
-                onChange={onChange("password")}
-                isError={!!errors.password}
-                errorMessage={errors.password}
-            />
-            <Button text="가입하기" onClick={onSubmit} disabled={form.nickname === ""} />
-        </ResponsiveContainer>
-    )
-}
+  const { data } = useQuery({
+    queryKey: ['playlistMetaPublic', playlistCode],
+    queryFn: async () => {
+      const result = await removeSessionStorageAsync().then(() =>
+        getPlaylistMetaPublic(playlistCode!),
+      );
+      return result ?? null;
+    },
+    retry: 1,
+    staleTime: 0,
+    enabled: !!playlistHealth?.result.health && playlistHealth?.result.health === 'ACTIVE',
+  });
 
+  const { title, thumbnailUrl, description } = data?.result ?? {
+    title: '',
+    thumbnailUrl: '',
+    description: '',
+  };
+  const { form, errors, setErrorsState, onChange } = useStartForm();
+
+  const { mutateAsync } = useDebouncedMutation(
+    {
+      mutationFn: async ({ nickname, password }: { nickname: string; password: string }) => {
+        try {
+          return await postUser(playlistCode!, { name: nickname, password });
+        } catch (error) {
+          if (error instanceof ApiError) {
+            if (error.code === 'USER001') {
+              console.error(error.message);
+              setErrorsState('password', error.message);
+            }
+          }
+        }
+      },
+      onSuccess: (data) => {
+        addSessionStorage('nickname', form.nickname);
+        if (data && 'result' in data) {
+          addSessionStorage('isAdmin', String((data as PostUserResponse).result.isAdmin));
+        }
+      },
+    },
+    500,
+    true,
+  );
+
+  const onSubmit = async () => {
+    try {
+      const result = await mutateAsync({ nickname: form.nickname, password: form.password });
+      setSessionStorage({
+        accessToken: (result as PostUserResponse).result.accessToken,
+        playlistCode: playlistCode!,
+      });
+      navigate('/home', { replace: true });
+    } catch (error) {
+      if (error instanceof ApiError) {
+        if (error.code === 'PLAYLIST001') {
+          navigate('/error/PNF', { replace: true });
+        } else {
+          navigate('/error', { replace: true });
+        }
+      }
+    }
+  };
+
+  return (
+    <ResponsiveContainer>
+      <meta name="og:title" content={title} />
+      <meta name="og:description" content={description} />
+      <meta name="og:image" content={thumbnailUrl} />
+      <meta name="og:url" content={`${import.meta.env.VITE_REACT_SHARE_URL}/${playlistCode}`} />
+      <meta name="og:type" content="website" />
+      <meta name="og:site_name" content="딥플리" />
+      <meta name="og:locale" content="ko_KR" />
+      <section
+        key={`${playlistCode}-image`}
+        className="flex flex-col items-start justify-center mt-[10%] w-full"
+      >
+        <ImageViewer src={thumbnailUrl} />
+        <PlaylistDescription title={title} description={description} isCenter={true} />
+      </section>
+      <Input
+        label="닉네임"
+        type="text"
+        placeholder="닉네임을 입력하세요"
+        value={form.nickname}
+        onChange={onChange('nickname')}
+        isError={!!errors.nickname}
+        errorMessage={errors.nickname}
+        className="mt-8 mb-8"
+      />
+      <Input
+        label="비밀번호(선택)"
+        type="password"
+        placeholder="비밀번호를 입력하세요"
+        value={form.password}
+        onChange={onChange('password')}
+        isError={!!errors.password}
+        errorMessage={errors.password}
+      />
+      <Button text="가입하기" onClick={onSubmit} disabled={form.nickname === ''} />
+    </ResponsiveContainer>
+  );
+};
 
 export default StartGuest;
