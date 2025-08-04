@@ -1,6 +1,5 @@
-import React from 'react'
 import PlaylistDescription from '@/components/common/playlistDescription';
-import PlayNext from '@/assets/playlist/ic_play_next.svg?react';
+import PlayNext from '@/assets/playlist/ic_play_next_disable.svg?react';
 
 type VideoTitleProps = {
     title?: string | undefined;
@@ -24,7 +23,7 @@ const VideoTitle = ({
                 className="
                     transition-colors duration-200
                     group
-                    text-[#979797] 
+                    text-transparent
                     hover:text-main
                     active:text-main-focus
                 "

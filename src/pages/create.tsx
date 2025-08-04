@@ -12,6 +12,8 @@ import { useCreateForm } from "@/hooks/form/useCreateForm";
 import { useSubmitPlaylistForm } from '@/hooks/form/useSubmitPlaylistForm';
 import usePlaylistFormStore from "@/hooks/store/usePlaylistForm";
 
+import ThumbnailImage from "@/assets/create/img_thumbnail_non_select.svg?react"
+
 let timeoutPromise: Promise<void> | null = null;
 
 const Create = () => {
@@ -115,12 +117,7 @@ const Create = () => {
                         </>
                     ) : (
                         <>
-                            <p className="text-text-medium-md text-font-disabled">
-                                플레이리스트 썸네일을
-                            </p>
-                            <p className="text-text-medium-md text-font-disabled">
-                                선택하거나 던져주세요
-                            </p>
+                            <ThumbnailImage className="w-full h-full" />
                         </>
                     )
 

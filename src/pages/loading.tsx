@@ -1,3 +1,5 @@
+import LoadingImage from "@/assets/loading/ic_loading.svg?react"
+
 type LoadingProps = {
     isLoading: boolean;
 }
@@ -8,8 +10,7 @@ const Loading = ({ isLoading }: LoadingProps) => {
 
     return (
         <div className="h-dvh min-w-screen bg-background overflow-hidden fixed inset-0 flex flex-col items-center justify-center">
-            <img src="/loading/spinner.svg" className="w-12 h-12 mt-8 spinner" />
-            <p className="text-white text-text-medium-md mt-4">로딩중입니다...</p>
+            <LoadingImage className="w-40 h-40 mt-8 animate-bounce" />
         </div>
     )
 }

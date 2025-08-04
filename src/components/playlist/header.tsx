@@ -17,15 +17,14 @@ const Header = ({ isLive, listenerCount }: HeaderProps) => {
                 className="
                     absolute left-0 p-2 rounded-md
                     transition-colors duration-200
-                    group
-                    text-[#979797] 
+                    text-transparent
                     hover:text-main 
                     focus:text-main 
                     active:text-main-focus
                 "
                 onClick={() => navigate("/home")}
             >
-                <IconHome className="pointer-events-none hover:outline hover:outline-main" />
+                <IconHome className="pointer-events-none transition-all duration-200" />
             </button>
             <div className="flex-1 flex-row w-full text-center justify-center items-center inline-block">
                 <h1 className={`text-text-medium-sm font-bold text-center transition-colors duration-300 text-main`}>

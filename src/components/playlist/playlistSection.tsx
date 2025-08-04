@@ -1,4 +1,3 @@
-import React from 'react'
 import PlaylistHeader from "@/components/playlist/playlistHeader";
 import PlaylistList from "@/components/playlist/playlistList";
 import PlaylistFooter from "@/components/playlist/playlistFooter";
