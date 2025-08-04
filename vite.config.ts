@@ -38,7 +38,10 @@ export default defineConfig({
         display: 'standalone',
         background_color: '#1F1F20',
         theme_color: '#D93F0F'
-      }
+      },
+      workbox: {
+        maximumFileSizeToCacheInBytes: 7000000, // 7MB로 설정 (필요한 크기에 맞게 조절)
+      },
      }),
      tsconfigPaths()
   ],
