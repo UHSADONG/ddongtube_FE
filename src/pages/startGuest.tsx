@@ -79,8 +79,8 @@ const StartGuest = () => {
         ,
         onSuccess: (data) => {
             addSessionStorage("nickname", form.nickname);
-            if ("result" in data) {
-                addSessionStorage("isAdmin", String(data.result.isAdmin));
+            if (data && "result" in data) {
+                addSessionStorage("isAdmin", String((data as PostUserResponse).result.isAdmin));
             }
         }
     }, 500, true)

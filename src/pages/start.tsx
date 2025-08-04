@@ -9,7 +9,7 @@ import { useStartForm } from "@/hooks/form/useStartForm";
 
 import { removeSessionStorage } from "@/utils/sessionStorage";
 
-import StartImage from "@/assets/start/img_start.webp"
+import StartImage from "@/assets/start/img_start.svg?react"
 
 let timeoutPromise: Promise<void> | null = null;
 
@@ -30,8 +30,7 @@ const Start = () => {
 
     return (
         <ResponsiveContainer>
-            <img src={StartImage} className="mt-[20%] h-[100px] w-[200px]" />
-            <p className="text-font-disabled text-text-medium-sm mt-2">안 들어오면.. 나.. 24시간 뒤에.. 터진다.?ㅋ</p>
+            <StartImage className="mt-[20%] h-[200px] w-[400px]" />
             <Input
                 label="닉네임"
                 type="text"

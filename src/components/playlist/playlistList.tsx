@@ -34,7 +34,7 @@ const PlaylistList = ({
         patchPlaylistPriority,
         playlistCode: playlistCode!,
         openSuccessToast,
-        isAdmin,
+        isAdmin: isAdmin || false,
     });
 
     React.useEffect(() => {

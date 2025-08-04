@@ -54,7 +54,7 @@ const FloatingButton = ({
                 `}
                 >
                     <p className='ml-1'>공유하기</p>
-                    <IconShare className="w-5 h-5 mx-1" />
+                    <IconShare className="w-7 h-7 mx-1 pointer-events-none" />
                 </button>
             </div>
         </div>
